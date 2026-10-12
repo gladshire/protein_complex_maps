@@ -51,12 +51,12 @@ def main():
 	args = parser.parse_args()
 
 	if args.pdb_dir == None and args.pisa_dir == None:
-		print "must set --pdb_dir or --pisa_dir"
+		print("must set --pdb_dir or --pisa_dir")
 		return
 
 
 	#kdrew: read in pdb list
-	pdb_list_file = open(args.pdb_list_filename,"rb")
+	pdb_list_file = open(args.pdb_list_filename,"r")
 	pdb_list = []
 	for line in pdb_list_file.readlines():
 		pdb_list.append(line.strip())
@@ -65,7 +65,7 @@ def main():
 	pdb_plot_data = dict()
 
 	if not args.load_results_pickle:
-		msds = pickle.load( open( args.msds_filename, "rb" ) )
+		msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 
 		#kdrew: for every pdb
 		for pdbid in pdb_list:
@@ -78,14 +78,14 @@ def main():
 
 	else:
 		try:
-			pdb_plot_data = pickle.load(open(args.pickle_results_filename,"rb"))
+			pdb_plot_data = pickle.load(open(args.pickle_results_filename,"rb"), encoding='latin1')
 		except:
-			print "Problem loading results pickle, make sure exists"
+			print("Problem loading results pickle, make sure exists")
 
 	plot_data( pdb_plot_data, args.plot_filename, violin_plot_flag=args.violin_plot_flag )
 
 def pdb_calc_distance(msds, pdbid, base_species, calc_metric, distance_metric, pdb_dir, pisa_dir):
-	print pdbid
+	print(pdbid)
 
 	#kdrew: can pass in two pdbids on same line if the complex is split into two pdbs, ex. ribosome 3j3a 3j3b
 	split_pdbid = pdbid.split()
@@ -98,7 +98,7 @@ def pdb_calc_distance(msds, pdbid, base_species, calc_metric, distance_metric, p
 	#kdrew: for every acc in pdb map to pdb chain
 	chain2acc = pu.get_pdb_protein_ids(pdbid)
 	if 0 == len(chain2acc):
-		print "No accs found for pdbid %s" % (pdbid,)
+		print("No accs found for pdbid %s" % (pdbid,))
 		return None, None
 
 	#kdrew: for every acc map human version (or specified species)
@@ -117,10 +117,10 @@ def pdb_calc_distance(msds, pdbid, base_species, calc_metric, distance_metric, p
 	if pdbid2 != None:
 		chain2acc2 = pu.get_pdb_protein_ids(pdbid2)
 		if 0 == len(chain2acc2):
-			print "No accs found for pdbid %s" % (pdbid2,)
+			print("No accs found for pdbid %s" % (pdbid2,))
 			return None, None
 		acc2base_species2 = pu.get_ortholog( [x for x in chain2acc2.values() if x != None], species1=base_species)
-		acc2base_species = dict(acc2base_species.items() + acc2base_species2.items())
+		acc2base_species = dict(list(acc2base_species.items()) + list(acc2base_species2.items()))
 		chain_pairs2acc2 = chain_pairs(msds, chain2acc2, acc2base_species)
 		a1_dict2 = calc_correlation( chain_pairs2acc2, msds )
 
@@ -129,7 +129,7 @@ def pdb_calc_distance(msds, pdbid, base_species, calc_metric, distance_metric, p
 		a1_dict_interpdb = calc_correlation( chain_pairs2acc2, msds )
 
 		#kdrew: combine all correlations into a single dictionary
-		a1_dict = dict(a1_dict.items() + a1_dict2.items() + a1_dict_interpdb.items())
+		a1_dict = dict(list(a1_dict.items()) + list(a1_dict2.items()) + list(a1_dict_interpdb.items()))
 
 	if calc_metric == "calc_dist":
 		#kdrew: read in pdb
@@ -138,7 +138,7 @@ def pdb_calc_distance(msds, pdbid, base_species, calc_metric, distance_metric, p
 			if pdbid2 != None:
 				structure2 = Bio.PDB.PDBParser().get_structure(pdbid2, pdb_dir+'/'+pdbid2+'.pdb')
 		except IOError as e:
-			print "I/O error({0}): {1}".format(e.errno, e.strerror)
+			print("I/O error({0}): {1}".format(e.errno, e.strerror))
 			return None, None
 
 		if distance_metric == "min":
@@ -148,7 +148,7 @@ def pdb_calc_distance(msds, pdbid, base_species, calc_metric, distance_metric, p
 		elif distance_metric == "mean":
 			metric_function = np.nanmean
 		else:
-			print "Error with distance_metric argument"
+			print("Error with distance_metric argument")
 			return()
 
 		a2_dict = calc_distance( chain_pairs2acc, structure, function=metric_function )
@@ -157,14 +157,14 @@ def pdb_calc_distance(msds, pdbid, base_species, calc_metric, distance_metric, p
 			#kdrew: update to deal with interpdb calculations
 			a2_dict2 = calc_distance( chain_pairs2acc2, structure2, function=metric_function )
 			a2_dict_interpdb = calc_distance( chain_pairs2acc_interpdb, structure, structure2, function=metric_function )
-			a2_dict = dict(a2_dict.items() + a2_dict2.items() + a2_dict_interpdb.items())
+			a2_dict = dict(list(a2_dict.items()) + list(a2_dict2.items()) + list(a2_dict_interpdb.items()))
 
 	elif calc_metric == "calc_surface_area":
 		pisaInt = pdbu.PISA_Interfaces( pisa_dir+'/'+pdbid+'_pisa' )
 		a2_dict = calc_surface_area( chain_pairs2acc, pisaInt )
 
 	else:
-		print "Error defining calc_metric"
+		print("Error defining calc_metric")
 		return
 
 
@@ -189,7 +189,7 @@ def chain_pairs(msds, chain2acc, acc2base_species, chain2acc2=None):
 		#kdrew: find where we have proper mappings to base species acc 
 		#kdrew: and acc is in msds data
 		for c1, c2 in it.combinations(chain2acc.keys(),2):
-			print c1, c2
+			print(c1, c2)
 			base_acc1, base_acc2 = chain_pairs_helper(msds, chain2acc, c1, c2, acc2base_species)
 
 			if base_acc1 == None or base_acc2 == None:
@@ -199,7 +199,7 @@ def chain_pairs(msds, chain2acc, acc2base_species, chain2acc2=None):
 	else:
 		for c1 in chain2acc.keys():
 			for c2 in chain2acc2.keys():
-				print c1, c2
+				print(c1, c2)
 				base_acc1, base_acc2 = chain_pairs_helper(msds, chain2acc, c1, c2, acc2base_species, chain2acc2)
 
 				if base_acc1 == None or base_acc2 == None:
@@ -219,25 +219,25 @@ def chain_pairs_helper(msds, chain2acc, c1, c2, acc2base_species, chain2acc2=Non
 	else:
 		acc2 = chain2acc2[c2]
 
-	print acc1, acc2
+	print(acc1, acc2)
 
 	base_acc1 = None
 	base_acc2 = None
 	try:
 		base_acc1 = acc2base_species[acc1]
 	except KeyError:
-		print "No mapping to base_species for acc %s" % (acc1)
+		print("No mapping to base_species for acc %s" % (acc1))
 		return None, None
 
 	try:
 		base_acc2 = acc2base_species[acc2]
 	except KeyError:
-		print "No mapping to base_species for acc %s" % (acc2)
+		print("No mapping to base_species for acc %s" % (acc2))
 		return None, None
 
 	#kdrew: check to see if accs are in msds
 	if base_acc1 not in acc2idmap or base_acc2 not in acc2idmap:
-		print "No mapping of base_acc in msds: %s %s" % (base_acc1, base_acc2,)
+		print("No mapping of base_acc in msds: %s %s" % (base_acc1, base_acc2,))
 		return None, None
 
 	return base_acc1, base_acc2
@@ -256,19 +256,19 @@ def calc_correlation(chain_pairs2acc, msds):
 		try:
 			i = acc2idmap[base_acc1]
 		except KeyError:
-			print "Missing data in msds: %s" % (base_acc1,)
+			print("Missing data in msds: %s" % (base_acc1,))
 			continue
 		try:
 			j = acc2idmap[base_acc2]
 		except KeyError:
-			print "Missing data in msds: %s" % (base_acc2,)
+			print("Missing data in msds: %s" % (base_acc2,))
 			continue
 
 		i_set = np.array(data_set[i,])[0]
 		j_set = np.array(data_set[j,])[0]
-		print "lengths i_set: %s j_set: %s" % (np.count_nonzero(i_set), np.count_nonzero(j_set))
+		print("lengths i_set: %s j_set: %s" % (np.count_nonzero(i_set), np.count_nonzero(j_set)))
 		corr = pearsonr(i_set, j_set)
-		print corr[0]
+		print(corr[0])
 		corr_coeff = corr[0]
 
 		if not np.isnan(corr_coeff): 
@@ -323,7 +323,7 @@ def calc_distance(chain_pairs2acc, structure, structure2=None, function=np.nanmi
 			continue
 
 		dist = pdbu.metric_dist(structure, c1, c2, structure2, function)
-		print dist
+		print(dist)
 
 		if not np.isnan(dist):
 			base_key1, base_key2 = base_acc1, base_acc2
@@ -357,7 +357,7 @@ def plot_data( pdb_plot_data, plot_filename, violin_plot_flag=False ):
 		pdb_plot_filename =  name + "_" + pdbid + "." + ext
 
 		if plot_filename is None:
-			print "plot_filename is None"
+			print("plot_filename is None")
 			plt.show()
 		else:
 			plt.savefig(pdb_plot_filename)
@@ -375,12 +375,12 @@ def plot_data( pdb_plot_data, plot_filename, violin_plot_flag=False ):
 		total_a2_list_separate = []
 		occupied_limits = []
 		for lower_limit, upper_limit in limits:
-			print lower_limit, upper_limit
+			print(lower_limit, upper_limit)
 			tmp_tuple_list = [ (x, total_a2_list[i]) for i,x in enumerate(total_a1_list) if x > lower_limit and x <= upper_limit ]
-			print tmp_tuple_list
+			print(tmp_tuple_list)
 			try:
-				total_a1_list_separate.append( zip(*tmp_tuple_list)[0])
-				total_a2_list_separate.append( zip(*tmp_tuple_list)[1])
+				total_a1_list_separate.append( list(zip(*tmp_tuple_list))[0])
+				total_a2_list_separate.append( list(zip(*tmp_tuple_list))[1])
 				occupied_limits.append((lower_limit, upper_limit))
 			except IndexError:
 				continue
@@ -405,7 +405,7 @@ def plot_data( pdb_plot_data, plot_filename, violin_plot_flag=False ):
 
 
 	if plot_filename is None:
-		print "plot_filename is None"
+		print("plot_filename is None")
 		plt.show()
 	else:
 		plt.savefig(plot_filename)

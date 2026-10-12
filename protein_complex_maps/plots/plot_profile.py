@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 import multiprocessing as mp
 import argparse
-import cPickle
+import pickle
 import pickle
 
 import protein_complex_maps.protein_util as pu
@@ -32,7 +32,7 @@ def main():
 	args = parser.parse_args()
 
 	#kdrew: pickle comes from running protein_complex_maps.util.read_ms_elutions_pickle_MSDS.py
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 
 	if args.fraction_range:
 		frange = [int(x) for x in args.fraction_range]
@@ -45,7 +45,7 @@ def plot_profile(msds, protein_ids, total_occupancy=False, ylim_max=False, savef
 	data_set, new_id_map = msds.get_subdata_matrix(protein_ids, ignoreNonExistingIds=ignore_missing) 
 
 	if fraction_range != None:
-		print fraction_range
+		print(fraction_range)
 		#data_set = data_set[np.ix_(range(0,data_set.shape[0]), range(fraction_range[0], fraction_range[1]))]
 
 
@@ -54,7 +54,7 @@ def plot_profile(msds, protein_ids, total_occupancy=False, ylim_max=False, savef
 	if total_occupancy:
 		col_sum = np.sum(data_set,0)
 		shared_cols =  np.array(np.nonzero(col_sum)[1]).reshape(-1).tolist()
-		print shared_cols
+		print(shared_cols)
 		data_set = data_set[np.ix_(range(0,data_set.shape[0]), shared_cols)]
 
 	#print data_set
@@ -65,7 +65,7 @@ def plot_profile_dataset(data_set, id_map, ylim_max=False, savefilename=None, fr
 	data_subplots = []
 
 	if genenames:
-		genename_map = pu.get_genenames_uniprot( id_map.values() )
+		genename_map = pu.get_genenames_uniprot( list(id_map.values()) )
 
 	f, data_subplots = plt.subplots(len(data_set),1,sharex='col', squeeze=False)
 
@@ -78,11 +78,11 @@ def plot_profile_dataset(data_set, id_map, ylim_max=False, savefilename=None, fr
 
 		#cols = set(range(0,len(data_array_cols)))
 
-		data_subplots[i,0].bar(np.arange(len(data_array_cols)), map(float,data_array_cols), align='center', facecolor=barcolor, alpha=0.5 )
+		data_subplots[i,0].bar(np.arange(len(data_array_cols)), list(map(float,data_array_cols)), align='center', facecolor=barcolor, alpha=0.5 )
 
 		data_subplots[i,0].axvspan(y_highlight[0], y_highlight[1], color='yellow', alpha=0.2)
 
-		if i in xrange(x_highlight[0], x_highlight[1]):
+		if i in range(x_highlight[0], x_highlight[1]):
 			data_subplots[i,0].axvspan(0, len(data_array_cols), color='blue', alpha=0.2)
 
 		#data_subplots[i].axes.set_yticklabels([],visible=False)
@@ -101,7 +101,7 @@ def plot_profile_dataset(data_set, id_map, ylim_max=False, savefilename=None, fr
 			else:
 				data_subplots[i,0].set_ylabel(id_map[i],rotation='horizontal', color=barcolor, fontsize=10)
 		except KeyError:
-			print id_map[i]
+			print(id_map[i])
 			data_subplots[i,0].set_ylabel(id_map[i],rotation='horizontal', color=barcolor, fontsize=10)
 
 
@@ -109,7 +109,7 @@ def plot_profile_dataset(data_set, id_map, ylim_max=False, savefilename=None, fr
 		data_subplots[i,0].axes.set_yticks([])
 
 	if savefilename is None:
-		print "savefilename is None"
+		print("savefilename is None")
 		plt.show()
 	else:
 		plt.savefig(savefilename)

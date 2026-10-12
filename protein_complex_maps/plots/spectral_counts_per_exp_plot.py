@@ -10,7 +10,7 @@ tot_list = list()
 
 #for filename in g.glob("/home/kdrew/data/protein_complex_maps/msds_pickles/fractions/*10.p"):
 for filename in g.glob("/home/kdrew/data/protein_complex_maps/msds_pickles/Hs/fractions/*10.p"):
-	f = open(filename,'rb')
+	f = open(filename,'r')
 
 	msds = p.load(f)
 

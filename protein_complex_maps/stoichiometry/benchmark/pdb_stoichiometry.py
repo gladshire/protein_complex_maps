@@ -2,9 +2,9 @@
 #kdrew: it produces a pickle of the dictionary 
 
 
-import urllib2, StringIO, csv
+import urllib.request, urllib.error, urllib.parse, io, csv
 import string
-import cPickle
+import pickle
 
 
 search_url = 'http://www.rcsb.org/pdb/rest/search'
@@ -32,11 +32,11 @@ identityCutoff = 100
 def main():
 	pdbid_dict = dict()
 	for entity_counts in entity_counts_list:
-		print entity_counts
+		print(entity_counts)
 		pdbids = get_pdbids_by_stoichiometry(entity_counts)
 		for pdbid in pdbids:
 			protids_dict, sanity = map_stoichiometry_to_protids(pdbid, entity_counts)
-			print "%s : %s -> %s" % (pdbid, sanity, protids_dict)
+			print("%s : %s -> %s" % (pdbid, sanity, protids_dict))
 			if sanity:
 				pdbid_dict[pdbid] = protids_dict
 	
@@ -46,8 +46,8 @@ def main():
 		if value not in pdbid_dict_uniq.values():
 			pdbid_dict_uniq[key] = value
 
-	print pdbid_dict_uniq
-	cPickle.dump( pdbid_dict_uniq, open( "pdb_stoichiometry.p", "wb"))
+	print(pdbid_dict_uniq)
+	pickle.dump( pdbid_dict_uniq, open( "pdb_stoichiometry.p", "wb"))
 
 #entity_counts = (780, 120)
 #entity_counts = (2, 1)
@@ -55,7 +55,7 @@ def main():
 def get_pdbids_by_stoichiometry(entity_counts):
 	stoichiometry_string = ""
 	for i, cnt in enumerate(entity_counts):
-		stoichiometry_string += string.uppercase[i]
+		stoichiometry_string += string.ascii_uppercase[i]
 		#kdrew: pdb stoichiometry format is not explicit about '1' so don't add cnt if 1
 		if cnt != 1:
 			stoichiometry_string += str(cnt)
@@ -95,21 +95,21 @@ def get_pdbids_by_stoichiometry(entity_counts):
 		</orgPdbCompositeQuery>
 	""" % (stoichiometry_string, identityCutoff)
 
-	print "query:\n", queryText
+	print("query:\n", queryText)
 
-	print "querying PDB...\n"
+	print("querying PDB...\n")
 
-	req = urllib2.Request(search_url, data=queryText)
+	req = urllib.request.Request(search_url, data=queryText.encode('utf-8'))
 
-	f = urllib2.urlopen(req)
+	f = urllib.request.urlopen(req)
 
-	result = f.read()
+	result = f.read().decode('utf-8')
 
 
 	if result:
-			print "Found number of PDB entries:", result.count('\n')
+			print("Found number of PDB entries:", result.count('\n'))
 	else:
-			print "Failed to retrieve results" 
+			print("Failed to retrieve results") 
 
 	result_pdbids = result.split()
 
@@ -124,17 +124,17 @@ def map_stoichiometry_to_protids(pdbid, entity_counts):
 	#kdrew: query pdb for chains/entities, protein ids, protein id db, and molecular type by pdbid
 	report_query="%s/pdb/rest/customReport?pdbids=%s&customReportColumns=entityId,db_id,db_name,entityMacromoleculeType&service=wsdisplay&format=csv&ssa=n" % (report_url, pdbid)
 
-	print report_query
+	print(report_query)
 
-	f2 = urllib2.urlopen(report_query)
-	response2 = f2.read()
+	f2 = urllib.request.urlopen(report_query)
+	response2 = f2.read().decode('utf-8')
 	response2 = response2.replace('<br />', '\n')
-	output2 = StringIO.StringIO(response2)
+	output2 = io.StringIO(response2)
 	result2 = csv.reader(output2)
 
 	#kdrew: count the number of pdb chains by protein id to determine entity counts
 	for row in result2:
-		print row
+		print(row)
 		#kdrew: ignore header line
 		if row[0] != pdbid or row[5] != 'Polypeptide(L)':
 			continue
@@ -144,19 +144,19 @@ def map_stoichiometry_to_protids(pdbid, entity_counts):
 			stoichiometry_dict[row[3]] = 1
 
 	sorted_stoich_dict = sorted(stoichiometry_dict.items(), key=lambda x: x[1], reverse=True)
-	print sorted_stoich_dict
+	print(sorted_stoich_dict)
 
 	#kdrew: this is a flag for whether the observed entity counts match the reported stoichiometry
 	overall_sanity = True
 	for i, stoich in enumerate(sorted_stoich_dict):
 		try:
-			print "%s : %s" % (stoich[0], entity_counts[i])
+			print("%s : %s" % (stoich[0], entity_counts[i]))
 			protid_dict[stoich[0]] = entity_counts[i]
 			#kdrew: this check is needed so we do not check ratio for last element and one that does not exist (i.e. i+1)
 			if i+1 < len(sorted_stoich_dict):
 				#kdrew: make sure the ratio of counts reported by stoichiometry is the same as the ratio of observed protein ids
 				ratio_sanity = (1.0*sorted_stoich_dict[i][1])/sorted_stoich_dict[i+1][1] == 1.0*entity_counts[i]/entity_counts[i+1] 
-				print "ratio sanity check: %s" % ( ratio_sanity, )
+				print("ratio sanity check: %s" % ( ratio_sanity, ))
 				if not ratio_sanity:
 					overall_sanity = False
 		except IndexError:

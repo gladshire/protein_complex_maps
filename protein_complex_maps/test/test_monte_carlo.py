@@ -24,22 +24,22 @@ class MonteCarloTest(unittest.TestCase):
 	def testAcceptReject(self, ):
 
 		bclust = self.montecarlo.boltzmann(self.data_matrix, self.bicluster1)
-		print "bclust: %s" % bclust.rows()
-		print self.montecarlo.result_history()
-		print self.montecarlo.score_history()
-		print self.montecarlo.score_diff_history()
-		print ""
+		print("bclust: %s" % bclust.rows())
+		print(self.montecarlo.result_history())
+		print(self.montecarlo.score_history())
+		print(self.montecarlo.score_diff_history())
+		print("")
 
 		assert(self.montecarlo.iterations() == 1)
 		assert(self.montecarlo.accept_rate() == 1.0)
 		assert(self.montecarlo.current_score() == -2.0)
 
 		bclust = self.montecarlo.boltzmann(self.data_matrix, self.bicluster1)
-		print "bclust: %s" % bclust.rows()
-		print self.montecarlo.result_history()
-		print self.montecarlo.score_history()
-		print self.montecarlo.score_diff_history()
-		print ""
+		print("bclust: %s" % bclust.rows())
+		print(self.montecarlo.result_history())
+		print(self.montecarlo.score_history())
+		print(self.montecarlo.score_diff_history())
+		print("")
 
 		assert(self.montecarlo.iterations() == 2)
 		assert(self.montecarlo.accept_rate() == 0.5)
@@ -48,11 +48,11 @@ class MonteCarloTest(unittest.TestCase):
 
 		self.bicluster1.add_row(3)
 		bclust = self.montecarlo.boltzmann(self.data_matrix, self.bicluster1)
-		print "bclust: %s" % bclust.rows()
-		print self.montecarlo.result_history()
-		print self.montecarlo.score_history()
-		print self.montecarlo.score_diff_history()
-		print ""
+		print("bclust: %s" % bclust.rows())
+		print(self.montecarlo.result_history())
+		print(self.montecarlo.score_history())
+		print(self.montecarlo.score_diff_history())
+		print("")
 
 		assert(self.montecarlo.iterations() == 3)
 		assert(self.montecarlo.accept_rate() == 2.0/3)
@@ -60,11 +60,11 @@ class MonteCarloTest(unittest.TestCase):
 
 		self.bicluster1.remove_row(3)
 		bclust = self.montecarlo.boltzmann(self.data_matrix, self.bicluster1)
-		print "bclust: %s" % bclust.rows()
-		print self.montecarlo.result_history()
-		print self.montecarlo.score_history()
-		print self.montecarlo.score_diff_history()
-		print ""
+		print("bclust: %s" % bclust.rows())
+		print(self.montecarlo.result_history())
+		print(self.montecarlo.score_history())
+		print(self.montecarlo.score_diff_history())
+		print("")
 
 		assert(self.montecarlo.iterations() == 4)
 		assert(self.montecarlo.accept_rate() == 2.0/4)
@@ -72,11 +72,11 @@ class MonteCarloTest(unittest.TestCase):
 
 		self.montecarlo.temp(1000.0)
 		bclust = self.montecarlo.boltzmann(self.data_matrix, self.bicluster1)
-		print bclust.rows()
-		print self.montecarlo.result_history()
-		print self.montecarlo.score_history()
-		print self.montecarlo.score_diff_history()
-		print ""
+		print(bclust.rows())
+		print(self.montecarlo.result_history())
+		print(self.montecarlo.score_history())
+		print(self.montecarlo.score_diff_history())
+		print("")
 
 		assert(self.montecarlo.iterations() == 5)
 		assert(self.montecarlo.accept_rate() == 3.0/5)

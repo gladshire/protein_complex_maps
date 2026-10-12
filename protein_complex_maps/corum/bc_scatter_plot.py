@@ -14,7 +14,7 @@ parser.add_argument("--results_file", action="store", dest="results_filename", r
 
 args = parser.parse_args()
 
-f = open(args.results_filename, "rb")
+f = open(args.results_filename, "r")
 
 bc_zscores = []
 interaction_zscores = []
@@ -27,8 +27,8 @@ for line in f.readlines():
 	bc_zscores.append(bc_zscore)
 	interaction_zscores.append(int_zscore)
 
-print "pearsonr: %s" % (pearsonr(bc_zscores, interaction_zscores),)
-print "spearmanr: %s" % (spearmanr(bc_zscores, interaction_zscores),)
+print("pearsonr: %s" % (pearsonr(bc_zscores, interaction_zscores),))
+print("spearmanr: %s" % (spearmanr(bc_zscores, interaction_zscores),))
 plt.scatter(bc_zscores, interaction_zscores)
 plt.show()
 

@@ -29,7 +29,7 @@ def main():
 	args = parser.parse_args()
 
 	tmpdir = tempfile.mkdtemp()
-	print "tmpdir: %s" % (tmpdir,)
+	print("tmpdir: %s" % (tmpdir,))
 
 	#kdrew: dictionary of dictionaries: input_prot_id -> [sequences]
 	sequence_map = dict()
@@ -45,9 +45,9 @@ def main():
 			primary_sequence = pu.get_sequences_uniprot( [key,], seqrecord=True )
 			sequences = pu.get_sequences_uniprot( orthologs_map[key], seqrecord=True )
 
-			print primary_sequence.values()
+			print(list(primary_sequence.values()))
 
-			sequence_map[key] = primary_sequence.values() + sequences.values()
+			sequence_map[key] = list(primary_sequence.values()) + list(sequences.values())
 
 
 	#print sequence_map

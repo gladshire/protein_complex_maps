@@ -16,17 +16,17 @@ class ClusterTest(unittest.TestCase):
 	def setUp(self,):
 
 		sample_filename = "./test_data.txt"
-		sample_file = open(sample_filename, 'rb')
+		sample_file = open(sample_filename, 'r')
 		self.data_matrix, self.name_list, self.fraction_list = rd.read_datafile(sample_file)
 
 		#print self.data_matrix
 
 		sample_filename2 = "./test_data2.txt"
-		sample_file2 = open(sample_filename2, 'rb')
+		sample_file2 = open(sample_filename2, 'r')
 		self.data_matrix2, self.name_list2, self.fraction_list2 = rd.read_datafile(sample_file2)
 
-		self.sample_file = open(sample_filename, 'rb')
-		self.sample_file2 = open(sample_filename2, 'rb')
+		self.sample_file = open(sample_filename, 'r')
+		self.sample_file2 = open(sample_filename2, 'r')
 		#print self.data_matrix2
 
 		self.msds = rd.MSDataSet()
@@ -38,11 +38,11 @@ class ClusterTest(unittest.TestCase):
 	def testHcluster(self,):
 
 		fulldm = self.msds.get_data_matrix()
-		print "get_data_matrix"
-		print fulldm
+		print("get_data_matrix")
+		print(fulldm)
 
 		Y, Y2, D = hc.runCluster(fulldm)
-		print Y
+		print(Y)
 		assert (Y[0][0] == 4)
 		assert (Y[0][1] == 7)
 		assert (Y[1][0] == 8)
@@ -50,23 +50,23 @@ class ClusterTest(unittest.TestCase):
 
 	def testGetCluster(self,):
 
-		print "testGetCluster"
+		print("testGetCluster")
 		fulldm = self.msds.get_data_matrix()
-		print fulldm
+		print(fulldm)
 
 		Y, Y2, D = hc.runCluster(fulldm)
-		print Y
-		print len(Y)
+		print(Y)
+		print(len(Y))
 		cids = cu.get_cluster(Y, 13 )
-		print cids
+		print(cids)
 		assert (cids[0] == 4.0)
 		assert (cids[1] == 7.0)
 		cids = cu.get_cluster( Y, 0 )
-		print cids
+		print(cids)
 		assert (cids[0] == 0.0)
 
 		cids = cu.get_cluster( Y, 24 )
-		print cids
+		print(cids)
 		assert ( len(cids) == 13 )
 
 		try: 
@@ -80,9 +80,9 @@ class ClusterTest(unittest.TestCase):
 		Y, Y2, D = hc.runCluster(fulldm)
 
 		#pc.interactions_over_random( self.msds.get_name2index(), Y ) 
- 		acc_mapping = self.msds.get_mapping("ACC_list")
-		print acc_mapping
-		print len(acc_mapping)
+		acc_mapping = self.msds.get_mapping("ACC_list")
+		print(acc_mapping)
+		print(len(acc_mapping))
 		pc.interactions_over_random( acc_mapping, Y ) 
 
 

@@ -65,9 +65,9 @@ genename_map["ENSG00000204264"]="PSMB8"
 
 
 #sample_file1 = open(sample_filename1, 'rb')
-sample_file2 = open(sample_filename2, 'rb')
+sample_file2 = open(sample_filename2, 'r')
 
-msds = pickle.load( open( msds_filename, "rb" ) )
+msds = pickle.load( open( msds_filename, "rb" ), encoding='latin1' )
 data_set, new_id_map = msds.get_subdata_matrix(proteosome_ids) 
 #data_set, new_id_map = msds.get_subdata_matrix(proteosome_core_ids) 
 
@@ -93,10 +93,10 @@ data_subplots = []
 f, data_subplots = plt.subplots(len(clean_data_matrix),1,sharex='col')
 
 max_value = np.max(clean_data_matrix)
-print max_value
+print(max_value)
 
 for i, data_r in enumerate(clean_data_matrix):
-	print "pos: %s name: %s" % (i, name_list[i])
+	print("pos: %s name: %s" % (i, name_list[i]))
 	data_row = np.array(data_r.reshape(-1))[0]
 	barcolor = "gray"
 	if name_list[i] in proteosome_ids:
@@ -112,7 +112,7 @@ for i, data_r in enumerate(clean_data_matrix):
 
 #kdrew: setting to show just a subset to highlight subcomplex
 #plt.xlim(40.0,80.0)
-print plt.xlim()
+print(plt.xlim())
 
 plt.savefig(savefilename)
 

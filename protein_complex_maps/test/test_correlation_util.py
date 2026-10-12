@@ -20,7 +20,7 @@ class CorrelationTest(unittest.TestCase):
 
 	def testMatrix(self, ):
 		scores = cu.correlation_distribution(self.data_matrix)
-		print scores
+		print(scores)
 		assert( scores[0] == 1.0 )
 		assert( len(scores) == 10 )
 
@@ -61,7 +61,7 @@ class CorrelationTest(unittest.TestCase):
 
 
 	def testNormalCorrelation(self,):
-		print "testNormalCorrelation"
+		print("testNormalCorrelation")
 		np.random.seed(12345)
 		mat1 = np.array([1,2,3,4,5,6,7,8,9,10]).reshape(2,5)
 		#mat2 = np.array([10,20,30,40,50,60,70,80,90,100]).reshape(2,5)

@@ -41,8 +41,8 @@ sample_iterations = 100
 #   return np.random.normal(mu,1.0)
 	
 
-sample_file1 = open(sample_filename1, 'rb')
-sample_file2 = open(sample_filename2, 'rb')
+sample_file1 = open(sample_filename1, 'r')
+sample_file2 = open(sample_filename2, 'r')
 
 data_matrix1, name_list1 = rd.read_datafile(sample_file1)
 data_matrix2, name_list2 = rd.read_datafile(sample_file2)
@@ -200,7 +200,7 @@ logging.debug(clean_data_matrix)
 #print numRows, numCols
 #
 ##kdrew: probably should test for some convergence
-#for i in xrange(1,1000):
+#for i in range(1,1000):
 #	print "iteration: %s" % (i,)
 #
 #	random_row = np.random.random_integers(0, numRows-1)
@@ -429,7 +429,7 @@ bcgen = bg.BiclusterGenerator(rsscore_obj.zscore_all_neg, iterations=2500, start
 ratequench_annealer = anl.RateQuenchAnnealer( bcgen.get_montecarlo(), quench_iteration=2400, scale=0.9, rate=0.3, recent_iterations=10, adjust_scale=True )
 bcgen.set_annealer(ratequench_annealer)
 
-for i in xrange(1,100):
+for i in range(1,100):
 	bicluster1 = bcgen.generator(working_data_matrix)
 
 	logging.info("bicluster%s" % (i,))

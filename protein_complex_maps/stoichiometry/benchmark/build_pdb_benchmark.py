@@ -1,9 +1,9 @@
 
-import cPickle
+import pickle
 
 def main():
 
-	pdbs = cPickle.load(open("pdb_stoichiometry.p"))
+	pdbs = pickle.load(open("pdb_stoichiometry.p"), encoding='latin1')
 
 	f = open("/home/kdrew/data/protein_complex_maps/shared_complexes/source_data/elutions_protein_counts/ids/pdb_protids_grep.txt")
 	ms_protids = []
@@ -29,11 +29,11 @@ def main():
 
 	ms_complete_pdbs = dict()
 	for i in ms_complete:
-		print i, pdbs[i]
+		print(i, pdbs[i])
 		ms_complete_pdbs[i] = pdbs[i]
 
 
-	cPickle.dump( ms_complete_pdbs, open("ms_complete_pdbs.p", "wb"))
+	pickle.dump( ms_complete_pdbs, open("ms_complete_pdbs.p", "wb"))
 
 	sec_ms_complete = set()
 
@@ -45,16 +45,16 @@ def main():
 		if pdb_complete:
 			sec_ms_complete.add(i)
 	
-	print "\n"
+	print("\n")
 	sec_ms_complete_pdbs = dict()
 	for i in sec_ms_complete:
-		print i, pdbs[i]
+		print(i, pdbs[i])
 		sec_ms_complete_pdbs[i] = pdbs[i]
 
-	cPickle.dump( sec_ms_complete_pdbs, open("sec_ms_complete_pdbs.p", "wb"))
+	pickle.dump( sec_ms_complete_pdbs, open("sec_ms_complete_pdbs.p", "wb"))
 
-	print len(ms_complete)
-	print len(sec_ms_complete)
+	print(len(ms_complete))
+	print(len(sec_ms_complete))
 
 if __name__ == "__main__":
 	main()

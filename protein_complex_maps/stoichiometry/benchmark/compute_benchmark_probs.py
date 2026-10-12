@@ -1,7 +1,7 @@
 
 
 import glob
-import cPickle
+import pickle
 import pickle
 import argparse
 
@@ -31,16 +31,16 @@ def main():
 
 	#kdrew: read in benchmark
 	#kdrew: pickle comes from running protein_complex_maps.stoichiometry.benchmark.build_pdb_benchmark.py
-	ms_complete_pdbs = cPickle.load(open(args.benchmark_filename, "rb"))
+	ms_complete_pdbs = pickle.load(open(args.benchmark_filename, "rb"), encoding='latin1')
 
 	#kdrew: pickle comes from running protein_complex_maps.stoichiometry.benchmark.normalize_benchmark_msds.py with length_normalize = True
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
-	print msds.get_id_dict()
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
+	print(msds.get_id_dict())
 
 
 	#kdrew: read in stoichiometries, file is from pdb website (slightly massaged)
 	#filename = "/home/kdrew/scripts/protein_complex_maps/protein_complex_maps/stoichiometry/benchmark/pdb_stoichiometry_list.txt"
-	sample_file = open(args.stoichiometry_filename, 'rb')
+	sample_file = open(args.stoichiometry_filename, 'r')
 	s_set = st.Stoichiometries()
 	s_set.read_stoichiometries(sample_file)
 
@@ -49,15 +49,15 @@ def main():
 	results_dict = dict()
 
 	if args.pdb_ids == None:
-		args.pdb_ids = ms_complete_pdbs.keys()
+		args.pdb_ids = list(ms_complete_pdbs.keys())
 	#kdrew: for every benchmark complex, call relative stoichiometry
 	for pdb_id in args.pdb_ids:
-		print pdb_id
-		prot_ids = ms_complete_pdbs[pdb_id].keys()
+		print(pdb_id)
+		prot_ids = list(ms_complete_pdbs[pdb_id].keys())
 		if msds_id_set >= set(prot_ids):
-			print "benchmark ids are in msds"
+			print("benchmark ids are in msds")
 			results, num_dpts, prot_ids_map, single_class_flag = rs.relative_stoichiometry( msds, prot_ids, s_set, prior_type=args.prior_type )
-			print "results: %s" % (results,)
+			print("results: %s" % (results,))
 			#if single_class_flag:
 
 			results_dict[pdb_id] = (results, num_dpts, prot_ids_map)
@@ -65,9 +65,9 @@ def main():
 			#else:
 			#	print "GMM did not converge to single class on all cases, single_class_flag == False"
 		else:
-			print "benchmark ids are NOT in msds"
+			print("benchmark ids are NOT in msds")
 
-	cPickle.dump(results_dict, open(args.output_filename, "wb"))
+	pickle.dump(results_dict, open(args.output_filename, "wb"))
 
 if __name__ == "__main__":
 	main()

@@ -50,11 +50,11 @@ class AnnealerTest(unittest.TestCase):
 		self.montecarlo.temp(10.0)
 
 		bclust = self.montecarlo.boltzmann(self.data_matrix, self.bicluster1)
-		print self.montecarlo.temp()
-		print self.montecarlo.accept_rate()
+		print(self.montecarlo.temp())
+		print(self.montecarlo.accept_rate())
 		#kdrew: accept causes annealer to reduce temp
 		annealer.anneal()
-		print self.montecarlo.temp()
+		print(self.montecarlo.temp())
 		assert(self.montecarlo.temp() == 5.0)
 
 		self.bicluster1.remove_row(1)
@@ -71,7 +71,7 @@ class AnnealerTest(unittest.TestCase):
 		self.montecarlo.temp(5.0)
 
 		bclust = self.montecarlo.boltzmann(self.data_matrix, self.bicluster1)
-		print self.montecarlo.accept_rate()
+		print(self.montecarlo.accept_rate())
 		annealer.anneal()
 		assert(self.montecarlo.temp() == 5.0)
 
@@ -79,7 +79,7 @@ class AnnealerTest(unittest.TestCase):
 		self.bicluster1.remove_row(2)
 		self.bicluster1.remove_row(3)
 		bclust = self.montecarlo.boltzmann(self.data_matrix, self.bicluster1)
-		print self.montecarlo.accept_rate()
+		print(self.montecarlo.accept_rate())
 		#kdrew: after two iterations the temp is set to original starting temp (see setup function)
 		annealer.anneal()
 		assert(self.montecarlo.temp() == 10.0)

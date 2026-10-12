@@ -29,13 +29,13 @@ def main():
 	pdb_list = []
 	if args.pdb_list_filename != None:
 		#kdrew: read in pdb list
-		pdb_list_file = open(args.pdb_list_filename,"rb")
+		pdb_list_file = open(args.pdb_list_filename,"r")
 		for line in pdb_list_file.readlines():
 			pdb_list.append(line.strip())
 	elif args.pdbid != None:
 		pdb_list.append(args.pdbid)
 	else:
-		print "Use either --pdb_list_filename or --pdbid to specify PDB"
+		print("Use either --pdb_list_filename or --pdbid to specify PDB")
 		return
 
         
@@ -44,15 +44,15 @@ def main():
 	for pdbid in pdb_list:
 		chain2acc = pu.get_pdb_protein_ids(pdbid)
 		acc2base_species = pu.get_ortholog( [x for x in chain2acc.values() if x != None], species1=args.base_species)
-		protein_ids = protein_ids + acc2base_species.values()
+		protein_ids = protein_ids + list(acc2base_species.values())
 
 
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 
 	data_set, new_id_map = msds.get_subdata_matrix(protein_ids, ignoreNonExistingIds=True)
 
-	out_id_file = open(os.path.splitext(args.out_filename)[0]+'.ids', "wb")
-	for i in xrange(len(new_id_map)):
+	out_id_file = open(os.path.splitext(args.out_filename)[0]+'.ids', "w")
+	for i in range(len(new_id_map)):
 		out_id_file.write(new_id_map[i]+'\n')
 
 	out_id_file.close()

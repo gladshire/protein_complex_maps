@@ -40,7 +40,7 @@ def main():
 
     #kdrew: read in complexes
     complexes = []
-    with open(args.complex_filename, 'rb') as complex_file:
+    with open(args.complex_filename, 'r') as complex_file:
         for complex_line in complex_file.readlines():
             complexes.append(complex_line.split())
 
@@ -58,14 +58,14 @@ def main():
         pickle.dump(complex_id_uniprot_map, open('./complex_uniprot_map.p','wb'))
 
     else:
-        complex_id_uniprot_map = pickle.load(open(args.map_pickle, 'rb'))
+        complex_id_uniprot_map = pickle.load(open(args.map_pickle, 'rb'), encoding='latin1')
     
 
     #kdrew: flatten dictionary by taking for first entry in list to be value
     complex_id_uniprot_single_map = {key : complex_id_uniprot_map[key][0] for key in complex_id_uniprot_map if len(complex_id_uniprot_map[key]) > 0}
     #print complex_id_uniprot_single_map
 
-    msds = pickle.load( open( args.msds_filename, "rb" ) )
+    msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
     data_set = msds.get_data_matrix()
     id_map = msds.get_id_dict()
 
@@ -95,33 +95,33 @@ def main():
     complex_sucrose_data = dict()
     complex_sucrose_ids = dict()
     for c_id in complex_ids:
-        print c_id 
+        print(c_id) 
         try:
             uni_id = ortholog_map[c_id]
-            print uni_id
+            print(uni_id)
             complex_sucrose_data[c_id] = np.array(data_set[id_map[uni_id]])[0]
-            print complex_sucrose_data[c_id]
+            print(complex_sucrose_data[c_id])
             complex_sucrose_ids[c_id] = uni_id
         except KeyError:
             continue
 
     if args.seq_pickle == None:
-        complex_seq_map = pu.get_sequences_uniprot(complex_id_uniprot_single_map.values())
+        complex_seq_map = pu.get_sequences_uniprot(list(complex_id_uniprot_single_map.values()))
         pickle.dump(complex_seq_map, open('./complex_uniprot_seq.p','wb'))
 
     else:
-        complex_seq_map = pickle.load(open(args.seq_pickle, 'rb'))
+        complex_seq_map = pickle.load(open(args.seq_pickle, 'rb'), encoding='latin1')
     
-    print complex_seq_map
+    print(complex_seq_map)
 
     
     #for seq_id in complex_seq_map:
     #    print complex_seq_map[seq_id]
     #    print "%s : %s" % (seq_id, su.molecular_weight(complex_seq_map[seq_id], seq_type="protein"))
 
-    print len(complex_sucrose_data)
-    print len(complex_ids)
-    print len(complex_seq_map)
+    print(len(complex_sucrose_data))
+    print(len(complex_ids))
+    print(len(complex_seq_map))
 
     #kdrew: calculate molecular weight for total complex, index is same for complexes and mw list
     complex_mw = []
@@ -131,11 +131,11 @@ def main():
             try:
                 weight += su.molecular_weight(complex_seq_map[complex_id_uniprot_single_map[c_id]], seq_type="protein")
             except KeyError:
-                print "Missing entry, ignore complex"
+                print("Missing entry, ignore complex")
                 weight = None
                 break
 
-        print "%s : %s" % (cmplx, weight)
+        print("%s : %s" % (cmplx, weight))
         complex_mw.append(weight)
 
 
@@ -156,25 +156,25 @@ def main():
         complex_sucrose_average.append(complex_sucrose_array)
 
         #kdrew: average fraction index weighted by value in sec 
-        print complex_sucrose_array
+        print(complex_sucrose_array)
         complex_sucrose_weight_fraction.append(np.average(range(1, len(msds.get_fraction_list())+1), weights=complex_sucrose_array))   
 
-    print complex_sucrose_average
+    print(complex_sucrose_average)
     complex_sucrose_average_array = np.array(complex_sucrose_average)
 
     complex_mw_array = np.array(complex_mw)
     complex_sucrose_weight_fraction_array = np.array(complex_sucrose_weight_fraction)
     mw_sort_idx = np.argsort(complex_mw_array)
 
-    print complex_sucrose_average_array[mw_sort_idx]
-    print complex_mw_array[mw_sort_idx]
-    print complex_sucrose_weight_fraction_array[mw_sort_idx]
+    print(complex_sucrose_average_array[mw_sort_idx])
+    print(complex_mw_array[mw_sort_idx])
+    print(complex_sucrose_weight_fraction_array[mw_sort_idx])
 
     nonNone_index = [i for i in range(len(complex_mw_array)) if complex_mw_array[i] != None and ~np.isnan(complex_sucrose_weight_fraction_array[i]) ]
-    print nonNone_index
+    print(nonNone_index)
 
-    print s.spearmanr(complex_mw_array, complex_sucrose_weight_fraction_array)
-    print s.spearmanr(complex_mw_array[nonNone_index], complex_sucrose_weight_fraction_array[nonNone_index])
+    print(s.spearmanr(complex_mw_array, complex_sucrose_weight_fraction_array))
+    print(s.spearmanr(complex_mw_array[nonNone_index], complex_sucrose_weight_fraction_array[nonNone_index]))
 
     complex_mw_array_woNone = complex_mw_array[nonNone_index]
     complex_sucrose_average_array_woNone = complex_sucrose_average_array[nonNone_index]
@@ -200,12 +200,12 @@ def main():
     medium_mw_indices = [i for i in nonNone_index if complex_mw_array[i] >= medium_mw[0] and complex_mw_array[i] < medium_mw[1]]
     large_mw_indices = [i for i in nonNone_index if complex_mw_array[i] >= large_mw[0] and complex_mw_array[i] < large_mw[1]]
 
-    print "small: %s" % (len(small_mw_indices))
-    print "medium: %s" % (len(medium_mw_indices))
-    print "large: %s" % (len(large_mw_indices))
+    print("small: %s" % (len(small_mw_indices)))
+    print("medium: %s" % (len(medium_mw_indices)))
+    print("large: %s" % (len(large_mw_indices)))
     
-    print small_mw_indices
-    print complex_sucrose_average_array[small_mw_indices]
+    print(small_mw_indices)
+    print(complex_sucrose_average_array[small_mw_indices])
 
     #kdrew: combine binned complexes (average arrays)
     small_average_array = np.average(complex_sucrose_average_array[small_mw_indices], axis=0)

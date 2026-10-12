@@ -46,7 +46,7 @@ def main():
 
 	args = parser.parse_args()
 
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 
 	if args.proteins != None:
 		data_set, new_id_map = msds.get_subdata_matrix(args.proteins) 
@@ -61,8 +61,8 @@ def main():
 			data_set, new_id_map = msds.get_subdata_matrix(args.proteins) 
 
 
-		except MySQLdb.Error, e:
-			print e
+		except MySQLdb.Error as e:
+			print(e)
 
 	else:
 		data_set = msds.get_data_matrix()
@@ -97,14 +97,14 @@ def evaluateClusters(msds, data_set, new_id_map, fit_model, plot_filename=None, 
 	rsscore_obj = rsu.RandomSamplingScore(data_set, su.multiple_dot_neg, sample_module=np.random)
 
 	for j, row in enumerate(fit_model.rows_):
-		print "Bicluster %s:" % (j,)
+		print("Bicluster %s:" % (j,))
 
 		bicluster_ids = []
 		for i, val in enumerate(row):
 			if val:
 				try:
 					#print "id %s, val %s, new_id_map %s"  % (i, val, new_id_map[i], )
-					print "%s"  % (new_id_map[i], )
+					print("%s"  % (new_id_map[i], ))
 					bicluster_ids.append(new_id_map[i])
 				except KeyError:
 					continue
@@ -119,7 +119,7 @@ def evaluateClusters(msds, data_set, new_id_map, fit_model, plot_filename=None, 
 
 
 			score = rsscore_obj.zscore_all_neg(bicluster_data_set)
-			print "initial score: %s" % (score,)
+			print("initial score: %s" % (score,))
 
 			row_list = list(np.ix_(fit_model.rows_[j])[0]) 
 			column_list = list(np.ix_(fit_model.columns_[j])[0])
@@ -132,7 +132,7 @@ def evaluateClusters(msds, data_set, new_id_map, fit_model, plot_filename=None, 
 			#	quench_annealer = anl.QuenchAnnealer( bcgen.get_montecarlo(), quench_iteration=250 )
 			#	bcgen.set_annealer(quench_annealer)
             #
-			#	for i in xrange(1,10):
+			#	for i in range(1,10):
 			#		logger = logging.getLogger()
 			#		logger.disabled = True
 			#		bicluster1 = bcgen.generator(bicluster_data_set)
@@ -165,11 +165,11 @@ def evaluateClusters(msds, data_set, new_id_map, fit_model, plot_filename=None, 
 					pp.plot_profile( bc_msds, bicluster_ids, savefilename=plot_fname )
 
 
-		print "\n"
+		print("\n")
 
-	print new_id_map.values()
+	print(list(new_id_map.values()))
 	if plot_filename != None:
-		pp.plot_profile( msds, new_id_map.values(), total_occupancy = True, savefilename=plot_filename )
+		pp.plot_profile( msds, list(new_id_map.values()), total_occupancy = True, savefilename=plot_filename )
 
 	return bicluster_list
 

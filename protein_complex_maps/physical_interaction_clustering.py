@@ -78,13 +78,13 @@ def main():
 	#clusters = evaluateClusters(msds, data_set, new_id_map, fit_model, args.plot_filename, plot_threshold=args.plot_threshold)
 
 def interactions_over_random( protein_id_map, Y ):
-	print "in interactions_over_random"
-	print Y
-	print len(Y)
-	print Y[-1]
+	print("in interactions_over_random")
+	print(Y)
+	print(len(Y))
+	print(Y[-1])
 	highest_cluster_id = len(Y) + len(protein_id_map) - 1
-	print "highest_cluster_id: %s" % highest_cluster_id
-	print "numOfProteins: %s" % len(protein_id_map)
+	print("highest_cluster_id: %s" % highest_cluster_id)
+	print("numOfProteins: %s" % len(protein_id_map))
 
 	biogrid_map = pu.map_protein_ids( list(it.chain(*protein_id_map.values()))  , "ACC+ID", 'BIOGRID_ID' )
 
@@ -128,21 +128,21 @@ class IntOverRand(object):
 		self.Dtotal = create_interaction_matrix(protein_ids , self.biogrid_map )
 		#kdrew: add a bit of noise
 		self.Dtotal = nu.sample_noise(self.Dtotal, sample_module=np.random.normal, scale=0.001)
-		print "Dtotal: %s" % self.Dtotal
+		print("Dtotal: %s" % self.Dtotal)
 
 		self.missing_from_biogrid = 0
 		for pid in protein_ids:
 			if len(biogrid_map[pid]) == 0:
 				self.missing_from_biogrid += 1
 
-		print "missing from biogrid: %s out of %s" % (self.missing_from_biogrid, len(protein_ids))
+		print("missing from biogrid: %s out of %s" % (self.missing_from_biogrid, len(protein_ids)))
 
 
 
 	#def interactions_over_random_recursive( protein_id_map, Y, cluster_id, biogrid_map, nRandSamples=1000 ):
 	def interactions_over_random_recursive( self, cluster_id ):
 
-		print "in interactions_over_random recursive, %s" % cluster_id
+		print("in interactions_over_random recursive, %s" % cluster_id)
 
 		#kdrew: leaf node
 		if cluster_id < len(self.protein_id_map):
@@ -157,16 +157,16 @@ class IntOverRand(object):
 		#kdrew: right subcluster
 		proteins_rcluster = self.interactions_over_random_recursive( self.Y[Y_id][1] )
 
-		print "cluster_id %s Y_id %s" % (cluster_id, Y_id)
-		print proteins_lcluster
-		print proteins_rcluster
+		print("cluster_id %s Y_id %s" % (cluster_id, Y_id))
+		print(proteins_lcluster)
+		print(proteins_rcluster)
 
 		#kdrew: unpack list
 		protein_ids = list(it.chain(*proteins_lcluster+proteins_rcluster))
 
 		#kdrew: get interactions for protids 
 		D = create_interaction_matrix( protein_ids, self.biogrid_map )
-		print D
+		print(D)
 
 		c_boundary = len(proteins_lcluster)
 		cr_boundary = len(proteins_rcluster)
@@ -184,7 +184,7 @@ class IntOverRand(object):
 
 			#kdrew: samples from all proteins in whole complex
 			if self.sampling_type == "all":
-				rand_order = range(self.Dtotal.shape[0])
+				rand_order = list(range(self.Dtotal.shape[0]))
 				np.random.shuffle(rand_order)
 				#print "rand_order: %s" % rand_order
 				Drand = self.Dtotal[:,rand_order][rand_order]
@@ -193,7 +193,7 @@ class IntOverRand(object):
 
 			#kdrew: samples from only the proteins in both the left and right clusters, all other proteins are not considered
 			else:
-				rand_order = range(D.shape[0])
+				rand_order = list(range(D.shape[0]))
 				np.random.shuffle(rand_order)
 				#print "rand_order: %s" % rand_order
 				Drand = D[:,rand_order][rand_order]
@@ -219,8 +219,8 @@ class IntOverRand(object):
 		l_cluster_zscore = (lcluster_sum - np.mean(rand_lcluster_sum_list)) / np.std(rand_lcluster_sum_list)
 		r_cluster_zscore = (rcluster_sum - np.mean(rand_rcluster_sum_list)) / np.std(rand_rcluster_sum_list)
 
-		print "lcluster_sum: %s zscore: %s" % (lcluster_sum, l_cluster_zscore)
-		print "rcluster_sum: %s zscore: %s" % (rcluster_sum, r_cluster_zscore)
+		print("lcluster_sum: %s zscore: %s" % (lcluster_sum, l_cluster_zscore))
+		print("rcluster_sum: %s zscore: %s" % (rcluster_sum, r_cluster_zscore))
 
 		c_boundary = len(proteins_lcluster)
 		cr_boundary = len(proteins_rcluster)
@@ -268,10 +268,10 @@ def create_interaction_matrix( proteins, biogrid_map=None, map_from="ACC+ID", ex
 			if len(biogrid_map[prot2]) == 0 or len(biogrid_map[prot]) == 0:
 				#D[i,j] = -1
 				continue
-			print "prot: %s %s prot2: %s %s" % (prot, biogrid_map[prot], prot2, biogrid_map[prot2])
+			print("prot: %s %s prot2: %s %s" % (prot, biogrid_map[prot], prot2, biogrid_map[prot2]))
 			cursor.execute("select * from Homo_sapiens_3_2_112 where throughput = 'Low Throughput' and BioGRID_ID_A = '%s' and BioGRID_ID_B = '%s' %s" % ( biogrid_map[prot][0], biogrid_map[prot2][0], expsys_str ) )
 			rows = cursor.fetchall()
-			print len(rows)
+			print(len(rows))
 			D[i,j] = len(rows) != 0
 			#D[i,j] = len(rows) 
 
@@ -295,11 +295,11 @@ def plotDendrogram(Y, Y2, D, plot_filename, new_id_map):
 	fig = pylab.figure(figsize=(8,8))
 	ax1 = fig.add_axes([0.09, 0.1, 0.11, 0.6])
 	dendrogram = sch.dendrogram(Y, orientation='right')
-	print dendrogram['leaves']
-	print [new_id_map[z] for z in dendrogram['leaves']]
+	print(dendrogram['leaves'])
+	print([new_id_map[z] for z in dendrogram['leaves']])
 	ax1.set_yticklabels([new_id_map[z] for z in dendrogram['leaves']])
 
-	print new_id_map
+	print(new_id_map)
 
 	ax2 = fig.add_axes([0.3, 0.78, 0.6, 0.2])
 	dendrogram2 = sch.dendrogram(Y2)
@@ -319,7 +319,7 @@ def plotDendrogram(Y, Y2, D, plot_filename, new_id_map):
 	pylab.colorbar(im, cax=axcolor)
 	
 
-	print dendrogram
+	print(dendrogram)
 
 	#fig.show()
 	fig.savefig(plot_filename)

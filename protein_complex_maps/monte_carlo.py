@@ -142,7 +142,7 @@ class MonteCarlo(object):
 
 		logging.debug("low_score: %s current_score: %s trial_score: %s" % (self.__low_score, self.__current_score, trial_score))
 		logging.debug("low_score bicluster: %s" % (self.lowscore_bicluster()))
-		if( trial_score >= self.__current_score and self.__current_score != None ):
+		if( self.__current_score != None and trial_score >= self.__current_score ):
 			logging.debug("bicluster does not decrease total score, test ")
 			#kdrew: if no, use logistic regression to predict membership value: x
 			#kdrew: p(drop|x) = math.e**(-(1-x)/T)
@@ -181,7 +181,7 @@ class MonteCarlo(object):
 		else:
 			logging.debug("bicluster decreases total score, automatically accept")
 
-			if self.__low_score > trial_score or self.__low_scoring_bicluster == None:
+			if self.__low_scoring_bicluster == None or self.__low_score > trial_score:
 				self.__low_scoring_bicluster = bc.Bicluster(rows=trial_bicluster.rows()[:], cols=trial_bicluster.columns()[:], random_module=self.__random_module)
 				self.__low_score = trial_score
 				self.__lowscore_accepts += 1

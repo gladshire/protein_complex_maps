@@ -28,13 +28,13 @@ def main():
 
 	args = parser.parse_args()
 
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 
 	complexes_dict = {}
 
 	if args.complex_filename: 
 		#kdrew: read in complexes from corum
-		with open(args.complex_filename, 'rb') as csvfile:
+		with open(args.complex_filename, 'r') as csvfile:
 			complexes = csv.reader(csvfile, delimiter=';')
 			for row in complexes:
 				if row[3] == "Human" and row[4] != '':
@@ -55,8 +55,8 @@ def main():
 		data_set, new_id_map = msds.get_subdata_matrix(complexes_dict[complex1], ignoreNonExistingIds=True)
 		working_data_set, new_id_map = msds.get_subdata_matrix(complexes_dict[complex1], ignoreNonExistingIds=True)
 
-		for i in xrange(args.iterations):
-			print "complex id: %s iteration: %s" % (complex1, i)
+		for i in range(args.iterations):
+			print("complex id: %s iteration: %s" % (complex1, i))
 
 
 			if data_set != None and new_id_map != None:
@@ -81,7 +81,7 @@ def main():
 	for complex1 in bicluster_dict:
 		bicluster_dict[complex1].sort(key = lambda tup: tup[1])
 		for bicluster in bicluster_dict[complex1]:
-			print "complex: %s zscore: %s genes: %s" % (complex1, bicluster[1], ' '.join(bicluster[0]))
+			print("complex: %s zscore: %s genes: %s" % (complex1, bicluster[1], ' '.join(bicluster[0])))
 
 
 

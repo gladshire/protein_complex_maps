@@ -23,13 +23,13 @@ def main():
 
 	args = parser.parse_args()
 
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 
 	complexes_dict = {}
 
 	if args.complex_filename: 
 		#kdrew: read in complexes from corum
-		with open(args.complex_filename, 'rb') as csvfile:
+		with open(args.complex_filename, 'r') as csvfile:
 			complexes = csv.reader(csvfile, delimiter=';')
 			for row in complexes:
 				if row[3] == "Human" and row[4] != '':
@@ -65,7 +65,7 @@ def main():
 		#kdrew: if there is a problem continue to next complex
 		except:
 			e = sys.exc_info()[0]
-			print "complex: %s error: %s" % (complex1,e)
+			print("complex: %s error: %s" % (complex1,e))
 			continue
 
 

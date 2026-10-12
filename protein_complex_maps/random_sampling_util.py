@@ -37,17 +37,23 @@ class RandomSampling(object):
 		zscore_cols = self.zscore_columns( data_matrix, bicluster )
 		zscore_rows = self.zscore_rows( data_matrix, bicluster )
 
-		print "score %s" % (score, )
-		print "zscore_all %s" % (zscore_all, )
-		print "zscore_cols %s" % (zscore_cols, )
-		print "zscore_rows %s" % (zscore_rows, )
-		print "zscore_multiplied %s" % (zscore_all * zscore_cols * zscore_rows)
+		print("score %s" % (score, ))
+		print("zscore_all %s" % (zscore_all, ))
+		print("zscore_cols %s" % (zscore_cols, ))
+		print("zscore_rows %s" % (zscore_rows, ))
+		print("zscore_multiplied %s" % (zscore_all * zscore_cols * zscore_rows))
 
-	def zscore_all( self, data_matrix, bicluster ):
+	def zscore_all( self, data_matrix, bicluster, mode='one_sided' ):
 		submatrix = bicluster.get_submatrix(data_matrix)
 		mean, std = self.score_mean_std_all( data_matrix, numrows=submatrix.shape[0], numcolumns=submatrix.shape[1] )  
 		score = self.score_function( submatrix )
-		zscore = abs(mean - score)/std
+		if mode == 'two_sided':
+			zscore = abs(mean - score)/std
+		elif mode == 'one_sided':
+			zscore = (mean - score)/std
+		else:
+			raise RuntimeError("Z-score 'mode' must be 'one_sided' or 'two_sided'")
+			exit()
 		return zscore
 
 	def zscore_columns( self, data_matrix, bicluster ):
@@ -75,10 +81,10 @@ class RandomSampling(object):
 
 		return_distribution = np.array([])
 
-		for i in xrange(0,self.iterations):
+		for i in range(0,self.iterations):
 			#kdrew: random sample from data_matrix keeping size of rows and columns same size as parameters
-			sample_rows = self.sample_module.choice(xrange(0,total_rows), numrows, replace=False)
-			sample_columns = self.sample_module.choice(xrange(0,total_columns), numcolumns, replace=False)
+			sample_rows = self.sample_module.choice(range(0,total_rows), numrows, replace=False)
+			sample_columns = self.sample_module.choice(range(0,total_columns), numcolumns, replace=False)
 
 			sample_rows.sort()
 			sample_columns.sort()
@@ -101,10 +107,10 @@ class RandomSampling(object):
 
 		return_distribution = np.array([])
 
-		for i in xrange(0,self.iterations):
+		for i in range(0,self.iterations):
 			#kdrew: random  sample from data_matrix keeping rows the same and columns same size
 			sample_rows = rows
-			sample_columns = self.sample_module.choice(xrange(0,total_columns), len(columns), replace=False)
+			sample_columns = self.sample_module.choice(range(0,total_columns), len(columns), replace=False)
 
 			sample_rows.sort()
 			sample_columns.sort()
@@ -127,9 +133,9 @@ class RandomSampling(object):
 
 		return_distribution = np.array([])
 
-		for i in xrange(0,self.iterations):
+		for i in range(0,self.iterations):
 			#kdrew: random sample from data_matrix keeping columns the same and rows same size 
-			sample_rows = self.sample_module.choice(xrange(0,total_rows), len(rows), replace=False)
+			sample_rows = self.sample_module.choice(range(0,total_rows), len(rows), replace=False)
 			sample_columns = columns
 
 			sample_rows.sort()
@@ -149,14 +155,27 @@ class RandomSamplingScore(RandomSampling):
 		super(RandomSamplingScore, self).__init__(score_function, iterations=iterations, sample_module=sample_module)
 		self.data_matrix = data_matrix
 
-	def zscore_all(self, matrix):
+	def zscore_all(self, matrix, mode='one_sided'):
 		mean, std = self.score_mean_std_all( self.data_matrix, numrows=matrix.shape[0], numcolumns=matrix.shape[1] )  
 		score = self.score_function( matrix )
-		zscore = abs(mean - score)/std
+		if mode == 'two_sided':
+			zscore = abs(mean - score)/std
+		elif mode == 'one_sided':
+			zscore = (mean - score)/std
+		else:
+			raise RuntimeError("Z-score 'mode' must be 'one_sided' or 'two_sided'")
+			exit()
 		return zscore
 
-	def zscore_all_neg(self, matrix):
-		return -1.0*self.zscore_all(matrix)
+	def zscore_all_neg(self, matrix, mode='one_sided'):
+		if mode == 'two_sided':
+			return -1.0*self.zscore_all(matrix, mode='two_sided')
+		elif mode == 'one_sided':
+			return -1.0*self.zscore_all(matrix, mode='one_sided')
+		else:
+			raise RuntimeError("Z-score 'mode' must be 'one_sided' or 'two-sided'")
+			exit()
+
 		
 class EmptyRowError(Exception):
 	def __init__(self, expr, msg):

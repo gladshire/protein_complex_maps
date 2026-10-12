@@ -34,11 +34,11 @@ def main():
 
     #kdrew: read in complexes
     complexes = []
-    with open(args.complex_filename, 'rb') as complex_file:
+    with open(args.complex_filename, 'r') as complex_file:
         for complex_line in complex_file.readlines():
             complexes.append(complex_line.split())
 
-    print complexes
+    print(complexes)
 
     #kdrew: create set of ids in all complexes
     complex_ids = set([item for sublist in complexes for item in sublist])
@@ -48,7 +48,7 @@ def main():
 
     #kdrew: readin sec data
     header_count = 0
-    with open(args.sec_filename, 'rb') as sec_file:
+    with open(args.sec_filename, 'r') as sec_file:
         reader = csv.reader(sec_file)
         for row in reader:
             #kdrew: file has two header lines
@@ -56,7 +56,7 @@ def main():
                 header_count+=1
             else:
                 #kdrew: uniprot id is in entry 0, data is in entries 1-35, remaining data is stdev + misc
-                sec_data[ row[0] ] = map( float, row[SEC_START_COL:SEC_END_COL] )
+                sec_data[ row[0] ] = list(map( float, row[SEC_START_COL:SEC_END_COL] ))
 
     #print sec_data
 
@@ -65,9 +65,9 @@ def main():
         pickle.dump(complex_seq_map, open('./corum_uniprot_seq.p','wb'))
 
     else:
-        complex_seq_map = pickle.load(open(args.seq_pickle, 'rb'))
+        complex_seq_map = pickle.load(open(args.seq_pickle, 'rb'), encoding='latin1')
     
-    print complex_seq_map
+    print(complex_seq_map)
 
     
     #kdrew: calculate molecular weight for total complex, index is same for complexes and mw list
@@ -78,11 +78,11 @@ def main():
             try:
                 weight += su.molecular_weight(complex_seq_map[c_id], seq_type="protein")
             except (KeyError, TypeError) :
-                print "Missing entry, ignore complex"
+                print("Missing entry, ignore complex")
                 weight = None
                 break
 
-        print "%s : %s" % (cmplx, weight)
+        print("%s : %s" % (cmplx, weight))
         complex_mw.append(weight)
 
 
@@ -107,7 +107,7 @@ def main():
         complex_sec_weight_fraction.append(np.average(range(SEC_START_COL,SEC_END_COL), weights=complex_sec_array))   
         complex_sec_max_fraction.append(np.argmax(complex_sec_array))   
 
-    print complex_sec_average
+    print(complex_sec_average)
     complex_sec_average_array = np.array(complex_sec_average)
 
     complex_mw_array = np.array(complex_mw)
@@ -115,18 +115,18 @@ def main():
     complex_sec_max_fraction_array = np.array(complex_sec_max_fraction)
     mw_sort_idx = np.argsort(complex_mw_array)
 
-    print complex_sec_average_array[mw_sort_idx]
-    print complex_mw_array[mw_sort_idx]
-    print complex_sec_weight_fraction_array[mw_sort_idx]
+    print(complex_sec_average_array[mw_sort_idx])
+    print(complex_mw_array[mw_sort_idx])
+    print(complex_sec_weight_fraction_array[mw_sort_idx])
 
     nonNone_index = [i for i in range(len(complex_mw_array)) if complex_mw_array[i] != None and ~np.isnan(complex_sec_weight_fraction_array[i]) ]
-    print nonNone_index
+    print(nonNone_index)
 
-    print s.spearmanr(complex_mw_array, complex_sec_weight_fraction_array)
-    print s.spearmanr(complex_mw_array[nonNone_index], complex_sec_weight_fraction_array[nonNone_index])
+    print(s.spearmanr(complex_mw_array, complex_sec_weight_fraction_array))
+    print(s.spearmanr(complex_mw_array[nonNone_index], complex_sec_weight_fraction_array[nonNone_index]))
 
-    print s.spearmanr(complex_mw_array, complex_sec_max_fraction_array)
-    print s.spearmanr(complex_mw_array[nonNone_index], complex_sec_max_fraction_array[nonNone_index])
+    print(s.spearmanr(complex_mw_array, complex_sec_max_fraction_array))
+    print(s.spearmanr(complex_mw_array[nonNone_index], complex_sec_max_fraction_array[nonNone_index]))
 
     complex_mw_array_woNone = complex_mw_array[nonNone_index]
     complex_sec_average_array_woNone = complex_sec_average_array[nonNone_index]

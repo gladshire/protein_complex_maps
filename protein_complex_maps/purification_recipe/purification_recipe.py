@@ -11,19 +11,19 @@ logging.basicConfig(level = logging.INFO,format='%(asctime)s %(levelname)s %(mes
 
 def main():
 
-	parser = argparse.ArgumentParser(description="Create purification recipe")
-	parser.add_argument("--input_msds_pickles", action="store", nargs='+', dest="msds_filenames", required=True, 
+        parser = argparse.ArgumentParser(description="Create purification recipe")
+        parser.add_argument("--input_msds_pickles", action="store", nargs='+', dest="msds_filenames", required=True, 
                                     help="Filenames of MSDS pickle: pickle comes from running protein_complex_maps.util.read_ms_elutions_pickle_MSDS.py")
-	parser.add_argument("--proteins", action="store", dest="proteins", nargs='+', required=True, 
+        parser.add_argument("--proteins", action="store", dest="proteins", nargs='+', required=True, 
                                     help="Protein ids in which to anaylze")
-	parser.add_argument("--protein_percent_threshold", action="store", dest="protein_percent_threshold", type=float, required=False, default=0.9,
+        parser.add_argument("--protein_percent_threshold", action="store", dest="protein_percent_threshold", type=float, required=False, default=0.9,
                                     help="Percentage of proteins that need to be present in input fractions (expressed as decimal), default 0.9 (ie 90%)")
-	parser.add_argument("--plot_filename", action="store", dest="plot_filename", required=False, default=None,
+        parser.add_argument("--plot_filename", action="store", dest="plot_filename", required=False, default=None,
                                     help="Filename of plot on plot.ly")
-	parser.add_argument("--fractionation_type", action="store", dest="fractionation_type_file", required=False, default="./fractionation_type.txt",
+        parser.add_argument("--fractionation_type", action="store", dest="fractionation_type_file", required=False, default="./fractionation_type.txt",
                                     help="File that describes the type of column used for a fractionation experiment")
 
-	args = parser.parse_args()
+        args = parser.parse_args()
 
         pr_obj = PurificationRecipe( args.msds_filenames, args.proteins, args.protein_percent_threshold, args.plot_filename, args.fractionation_type_file)
         pr_obj.create_recipes()
@@ -61,7 +61,7 @@ class PurificationRecipe(object):
 
     def map_fractionation_type(self,):
 
-        ft_file = open(self.fractionation_type_file, "rb")
+        ft_file = open(self.fractionation_type_file, "r")
         for line in ft_file.readlines():
             ls = line.split('\t')
             
@@ -77,14 +77,14 @@ class PurificationRecipe(object):
                 else:
                     self.frac_type_dict[fname] = None
 
-        print self.frac_type_dict
+        print(self.frac_type_dict)
 
 
     def create_data_frames(self,):
 
         msds_dict= dict()
         for msds_filename in self.msds_filenames:
-            msds = pickle.load( open( msds_filename, "rb" ) )
+            msds = pickle.load( open( msds_filename, "rb" ), encoding='latin1' )
             msds_dict[msds_filename] = msds
 
             #kdrew: map input protein ids to protein ids used for indexing
@@ -99,9 +99,9 @@ class PurificationRecipe(object):
                 except KeyError:
                     continue
 
-        self.proteins = self.protein_map.values()
-        print "self.proteins"
-        print self.proteins
+        self.proteins = list(self.protein_map.values())
+        print("self.proteins")
+        print(self.proteins)
 
         #kdrew: store data in data frames
         for msds_filename in msds_dict.keys():
@@ -112,8 +112,8 @@ class PurificationRecipe(object):
 
             missing_proteins = [ self.protein_map[i] for i in self.input_proteins if self.protein_map[i] not in df.columns ]
 
-            print "final mapped proteins: %s" % self.proteins
-            print "final missing proteins: %s" % missing_proteins
+            print("final mapped proteins: %s" % self.proteins)
+            print("final missing proteins: %s" % missing_proteins)
 
             #kdrew: add in 0.0 rows for missing entries that are still unmapped
             for missing_prot in missing_proteins:
@@ -221,7 +221,7 @@ class PurificationRecipe(object):
     def show_results(self,):
         sorted_results_list = sorted(self.results_list, key = lambda result : result.purity_percent)
         for result in sorted_results_list:
-            print result
+            print(result)
 
     def plot_results(self,):
 
@@ -275,7 +275,7 @@ class PurificationRecipe(object):
         )
         fig = go.Figure(data=data, layout=layout)
         plot_url = py.plot(fig, filename=self.plot_filename, auto_open=False, world_readable=False)
-        print plot_url
+        print(plot_url)
 
 
     def score_fraction(self, vector ):
@@ -325,6 +325,6 @@ class PurificationRecipeResult(object):
         return "experiments: %s, fractions: %s, fraction_types: %s, protein_percent: %s, purity_percent: %s, yield_percent: %s" % (self.experiments, self.fractions, self.fraction_types, self.protein_percent*100, self.purity_percent*100, self.yield_percent*100)
 
 if __name__ == "__main__":
-	main()
+        main()
 
 

@@ -16,7 +16,7 @@ class StoichiometryTest(unittest.TestCase):
 	def setUp(self,):
 
 		filename = "./stoichiometry_list.txt"
-		sample_file = open(filename, 'rb')
+		sample_file = open(filename, 'r')
 		self.s_set = st.Stoichiometries()
 		self.s_set.read_stoichiometries(sample_file)
 
@@ -25,7 +25,7 @@ class StoichiometryTest(unittest.TestCase):
 	def testStoichiometrySet(self,):
 
 		for i in self.s_set:
-			print i, i.count
+			print(i, i.count)
 
 		assert(len(self.s_set) == 20)
 

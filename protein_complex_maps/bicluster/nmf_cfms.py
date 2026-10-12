@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import itertools
 import argparse
 import pickle
-import bench
+import protein_complex_maps.bicluster.bench as bench
 import numpy.random as random 
 
 
@@ -88,7 +88,7 @@ def main():
 
     args = parser.parse_args()
 
-    msds = pickle.load( open( args.msds_filename, "rb" ) )
+    msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 
     # Restrict data set to user-specified PDB accessions
     if args.proteins != None:
@@ -99,12 +99,12 @@ def main():
 
     acc_map = dict(new_id_map)
     if args.genenames:
-            print "new_id_map.values: %s" % (new_id_map.values(),)
-            genename_map = pu.get_genenames_uniprot( new_id_map.values() )
+            print("new_id_map.values: %s" % (list(new_id_map.values()),))
+            genename_map = pu.get_genenames_uniprot( list(new_id_map.values()) )
             #print new_id_map
             #print genename_map
             gene_id_map = dict()
-            for i in xrange(len(data_set)):
+            for i in range(len(data_set)):
                     #print i
                     #print genename_map[new_id_map[i]]
                     #kdrew: sometimes no genename is returned for certain ids, default to original id
@@ -127,7 +127,7 @@ def main():
     V = data_set
     V_raw = data_set_raw
 
-    print V
+    print(V)
 
     # Run LSNMF algorithm
     # Returned object is fitted factorization model. Through it user can access quality and performance measures.
@@ -143,13 +143,13 @@ def main():
 
     # Basis matrix.
     W = fctr_res.basis()
-    print "Basis matrix"
-    print W
+    print("Basis matrix")
+    print(W)
 
     # Mixture matrix. 
     H = fctr_res.coef()
-    print "Coef"
-    print H
+    print("Coef")
+    print(H)
 
     # Basis matrix for non-normalized
     W_raw = fctr_res_raw.basis()
@@ -158,16 +158,16 @@ def main():
     H_raw = fctr_res_raw.coef()
 
     # Print the loss function according to Kullback-Leibler divergence. By default Euclidean metric is used.
-    print "Distance Kullback-Leibler: %5.3e" % fctr_res.distance(metric = "kl")
+    print("Distance Kullback-Leibler: %5.3e" % fctr_res.distance(metric = "kl"))
 
     # Compute generic set of measures to evaluate the quality of the factorization
     sm = fctr_res.summary()
     # Print residual sum of squares (Hutchins, 2008). Can be used for estimating optimal factorization rank.
-    print "Rss: %8.3f" % sm['rss']
+    print("Rss: %8.3f" % sm['rss'])
     # Print explained variance.
-    print "Evar: %8.3f" % sm['evar']
+    print("Evar: %8.3f" % sm['evar'])
     # Print actual number of iterations performed
-    print "Iterations: %d" % sm['n_iter']
+    print("Iterations: %d" % sm['n_iter'])
 
     # Print estimate of target matrix V 
     #print "Estimate"
@@ -204,7 +204,7 @@ def main():
     #print "lid cols zscore: %s" % (rsscore_obj.zscore_columns(data_set, bicluster1))
     #print "lid rows zscore: %s" % (rsscore_obj.zscore_rows(data_set, bicluster1))
 
-    print "Clusters"
+    print("Clusters")
     ref_names, ref = bench.prep_reference_named(reference_dict, set(acc_map.values()))
     stat_rows = []
     stat_rows_raw = []
@@ -250,7 +250,7 @@ def main():
         mc_clusters.append(set(acc_map[int(r)] for r in bicluster_mc.rows()))
         mc_clusters_raw.append(set(acc_map[int(r)] for r in bicluster_mc_raw.rows()))
 
-	eval_dict = bcgen.evaluate( data_set, len(bcgen.biclusters)-1 )
+        eval_dict = bcgen.evaluate( data_set, len(bcgen.biclusters)-1 )
         eval_dict_raw = bcgen_raw.evaluate( data_set_raw, len(bcgen_raw.biclusters)-1 )
 
         mc_scores.append(eval_dict['all']['zscore'])
@@ -275,22 +275,22 @@ def main():
         stat_rows += [(i, "nmf_raw", st_nmf_raw), (i, "mc_raw", st_mc_raw)]
 
         try:
-            print "zscore: %s" % (rsscore_obj.zscore_all(bicluster1.get_submatrix(data_set)),)
-            print "cols zscore: %s" % (rsscore_obj.zscore_columns(data_set, bicluster1))
-            print "rows zscore: %s" % (rsscore_obj.zscore_rows(data_set, bicluster1))
+            print("zscore: %s" % (rsscore_obj.zscore_all(bicluster1.get_submatrix(data_set)),))
+            print("cols zscore: %s" % (rsscore_obj.zscore_columns(data_set, bicluster1)))
+            print("rows zscore: %s" % (rsscore_obj.zscore_rows(data_set, bicluster1)))
         except:
             continue
 
         bench.write_stats_table(stat_rows, "bicluster_stats.tsv")
         #bench.write_stats_table(stat_rows_raw, "bicluster_raw_stats.tsv")
 
-	for t in eval_dict.keys():
+        for t in eval_dict.keys():
             logging.info("random %s, mean: %s, std: %s, zscore: %s" % ( t, eval_dict[t]['mean'], eval_dict[t]['std'], eval_dict[t]['zscore'] ))
 
-	pbc.plot_bicluster_worker(data_set, bicluster_mc, savefilename="bicluster_testMC%s.pdf" % (i), ylim_max=True)
+        pbc.plot_bicluster_worker(data_set, bicluster_mc, savefilename="bicluster_testMC%s.pdf" % (i), ylim_max=True)
         plt.close('all')
 
-	pbc.plot_bicluster_worker(data_set_raw, bicluster_mc_raw, savefilename="bicluster_raw_testMC%s.pdf" % (i), ylim_max=True)
+        pbc.plot_bicluster_worker(data_set_raw, bicluster_mc_raw, savefilename="bicluster_raw_testMC%s.pdf" % (i), ylim_max=True)
         plt.close('all')
 
     detected = set(acc_map.values())
@@ -301,7 +301,7 @@ def main():
     for name, clusters in [("NMF only", nmf_clusters), ("NMF only (raw counts)", nmf_clusters_raw), ("NMF + MC", mc_clusters), ("NMF + MC (raw counts)", mc_clusters_raw)]:
         cp, cr = bench.complex_level(clusters, ref, thr=0.25)
         pp, pr = bench.pairwise(clusters, ref)
-        print "%s complex P/R: %.2f/%.2f  pairwise P/R: %.2f/%.2f" % (name, cp, cr, pp, pr)
+        print("%s complex P/R: %.2f/%.2f  pairwise P/R: %.2f/%.2f" % (name, cp, cr, pp, pr))
 
     scores = bench.scores_from_clusters(mc_clusters, mc_scores)
     (prec, rec, thr), ap = bench.pair_curve(scores, ref)
@@ -309,7 +309,7 @@ def main():
     scores_raw = bench.scores_from_clusters(mc_clusters_raw, mc_scores_raw)
     (prec_raw, rec_raw, thr), ap_raw = bench.pair_curve(scores_raw, ref)
 
-    print "pairwise average precision %.3f" % ap
+    print("pairwise average precision %.3f" % ap)
 
     data_subplots = []
     f, data_subplots = plt.subplots(len(W),1,sharex='col')
@@ -329,7 +329,7 @@ def main():
         data_row = np.array(data_r.reshape(-1))[0]
         barcolor = "green"
 
-        data_subplots[i].bar(np.arange(len(data_row)), data_row, align='center', facecolor=barcolor)
+        data_subplots[i].bar(np.arange(len(data_row)), data_row, align='center', facecolor=barcolor, alpha=0.5)
         data_subplots[i].axes.set_yticklabels([],visible=False)
         data_subplots[i].set_ylabel("%s" % (new_id_map[i],),rotation='horizontal', color=barcolor, fontsize=6, verticalalignment="center",horizontalalignment="right")
 
@@ -337,5 +337,5 @@ def main():
 
 
 if __name__ == "__main__":
-	main()
+        main()
 

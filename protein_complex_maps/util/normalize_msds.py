@@ -1,7 +1,7 @@
 
 
 import glob
-import cPickle
+import pickle
 import pickle
 import argparse
 
@@ -85,7 +85,7 @@ def main():
 	#threshold_normalize = False
 
 	#kdrew: pickle comes from running protein_complex_maps.util.read_ms_elutions_pickle_MSDS.py
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 	if args.map_ids:
 		msds.map_ids(args.map_id_from, args.map_id_to)
 
@@ -93,7 +93,7 @@ def main():
 		msds.map_ids_by_genename(args.organism)
 
 	if args.transfer_map:
-		msds2 = pickle.load( open( args.transfer_msds_filename, "rb" ) )
+		msds2 = pickle.load( open( args.transfer_msds_filename, "rb" ), encoding='latin1' )
 		msds.transfer_map(msds2)
 
 	if args.map_orthologs:
@@ -102,22 +102,22 @@ def main():
 
 	#kdrew: normalize by length as well as map ids
 	if args.length_normalize:
-		print msds.get_id_dict()
+		print(msds.get_id_dict())
 		#kdrew: map ids
 		msds.map_ids(args.map_id_from, args.map_id_to)
-		print msds.get_id_dict()
+		print(msds.get_id_dict())
 
 		#kdrew: normalize length
 		dm_length = nu.normalize_length( msds.get_data_matrix(), msds.get_id_dict() )
 		msds.set_data_matrix(dm_length)
 
-		print msds.get_data_matrix()
+		print(msds.get_data_matrix())
 
 	if args.peptide_normalize:
 		#kdrew: input error checking
 		assert (args.peptide_digest_format in ["raw", "counts"] )
 
-		peptide_file = open(args.peptide_digest_filename, "rb") 
+		peptide_file = open(args.peptide_digest_filename, "r") 
 		peptide_counts = None
 		if args.peptide_digest_format == "raw":
 			peptide_counts = False

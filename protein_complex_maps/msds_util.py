@@ -19,28 +19,28 @@ def main():
 
 
 	for p in args.proteins:
-		print p
+		print(p)
 		flist_full = []
 		fcount_full = []
 		for msds_filename in args.msds_filenames:
-			msds = pickle.load( open( msds_filename, "rb" ) )
+			msds = pickle.load( open( msds_filename, "rb" ), encoding='latin1' )
 			try:
 				flist, fcounts = fractions_with_counts(msds, p, threshold=args.threshold)
 			except KeyError:
 				continue
 			for i, fname in enumerate(flist):
-				print "%s %s %s" % (os.path.basename(msds_filename), fname, fcounts[i])
+				print("%s %s %s" % (os.path.basename(msds_filename), fname, fcounts[i]))
 			flist_full += flist.tolist()
 			fcount_full += fcounts.tolist()
 
 
 		try:
-			print "max: %s %s %s" % (p, flist_full[np.argmax(fcount_full)], fcount_full[np.argmax(fcount_full)])
+			print("max: %s %s %s" % (p, flist_full[np.argmax(fcount_full)], fcount_full[np.argmax(fcount_full)]))
 		except ValueError:
 			continue
 
 
-		print "\n"
+		print("\n")
 
 #kdrew: function to return only the fractions with counts above a specified threshold
 def fractions_with_counts( msds, prot_id, threshold = 0.0 ):

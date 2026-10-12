@@ -20,7 +20,7 @@ exosome_ids = ["ENSG00000135698","ENSG00000178896","ENSG00000130713","ENSG000001
 #sigma = 15 # standard deviation of distribution
 #x = mu + sigma * np.random.randn(10000)
 
-sample_file = open(sample_filename,'rb')
+sample_file = open(sample_filename,'r')
 #kdrew: eat header
 line = sample_file.readline()
 data = []
@@ -36,20 +36,20 @@ name_list = []
 for line in sample_file.readlines():
 	#print line
 	line_data = line.split()
-	line_array = map(float,line_data[2:])
+	line_array = list(map(float,line_data[2:]))
 	name_list.append(line_data[0])
-	print line_array
+	print(line_array)
 	data.append(line_array)
 							
 
-print len(data)
+print(len(data))
 
 
 data_subplots = []
 f, data_subplots = plt.subplots(len(data),1,sharex='col')
 
 max_value = np.max(data)
-print max_value
+print(max_value)
 
 for i, data_row in enumerate(data):
 	barcolor = "green"
@@ -70,11 +70,11 @@ corr_dict = dict()
 corr_list = []
 for data_row in data:
 	for data_row2 in data:
-		pr = pearsonr(map(float,data_row[2:]), map(float,data_row2[2:]))
+		pr = pearsonr(list(map(float,data_row[2:])), list(map(float,data_row2[2:])))
 		corr_list.append(pr[0])
 		corr_dict[(data_row[0],data_row2[0])] = pr
 
-print corr_dict
+print(corr_dict)
 
 #pr = pearsonr(e_kd, r_be)
 #print pr

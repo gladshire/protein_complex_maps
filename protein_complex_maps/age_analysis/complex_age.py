@@ -34,32 +34,32 @@ def main():
     #kdrew: read in complexes
     complexes = {}
     index = 0
-    with open(args.complex_filename, 'rb') as complex_file:
+    with open(args.complex_filename, 'r') as complex_file:
         for complex_line in complex_file.readlines():
             complexes[index] = complex_line.split()
-            print "index: %s proteins: %s" % (index, complexes[index])
+            print("index: %s proteins: %s" % (index, complexes[index]))
             index+=1
 
-    print complexes
+    print(complexes)
 
     #kdrew: read in protein ages
     protein_age = {}
-    with open(args.age_filename, 'rb') as age_file:
+    with open(args.age_filename, 'r') as age_file:
         for age_line in age_file.readlines():
             try:
                 protein_age[age_line.split()[0]] = float(age_line.split()[1])
             except IndexError:
-                print "missing value for protein age"
+                print("missing value for protein age")
                 continue
 
-    print protein_age
+    print(protein_age)
 
     #kdrew: read in complex age classification (new (metazoan), mixed, old)
     complex_class = {}
     class_old = []
     class_mix = []
     class_metazoan = []
-    with open(args.class_filename, 'rb') as class_file:
+    with open(args.class_filename, 'r') as class_file:
         for class_line in class_file.readlines():
             complex_class[class_line.split()[0]] = class_line.split()[1]
             if class_line.split()[1] == "old":
@@ -69,19 +69,19 @@ def main():
             elif class_line.split()[1] == "mix":
                 class_mix.append(int(class_line.split()[0]))
             else:
-                print "Something wrong with class definitions"
+                print("Something wrong with class definitions")
 
-    print complex_class
-    print class_old
-    print class_mix
-    print class_metazoan
+    print(complex_class)
+    print(class_old)
+    print(class_mix)
+    print(class_metazoan)
 
     complex_ages = dict()
     old_ages = []
     metazoan_ages = []
     mix_ages = []
     for cplx in complexes:
-        print cplx
+        print(cplx)
         complex_ages[cplx] = []
         for prot in complexes[cplx]:
             try:
@@ -89,7 +89,7 @@ def main():
             except KeyError:
                 continue
 
-    print complex_ages
+    print(complex_ages)
 
     for cplx in class_old:
         for prot in complexes[cplx]:
@@ -113,13 +113,13 @@ def main():
                 continue
 
 
-    print old_ages
-    print mix_ages
-    print metazoan_ages
+    print(old_ages)
+    print(mix_ages)
+    print(metazoan_ages)
 
-    print np.mean(old_ages)
-    print np.mean(mix_ages)
-    print np.mean(metazoan_ages)
+    print(np.mean(old_ages))
+    print(np.mean(mix_ages))
+    print(np.mean(metazoan_ages))
 
     #kdrew: calculate average age for each complex
     avg_age_array = []

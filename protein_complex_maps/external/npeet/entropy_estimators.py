@@ -25,7 +25,7 @@ def entropy(x,k=3,base=2):
   tree = ss.cKDTree(x)
   nn = [tree.query(point,k+1,p=float('inf'))[0][k] for point in x]
   const = digamma(N)-digamma(k) + d*log(2)
-  return (const + d*np.mean(map(log,nn)))/log(base)
+  return (const + d*np.mean(list(map(log,nn))))/log(base)
 
 def mi(x,y,k=3,base=2):
   """ Mutual information of x and y
@@ -78,7 +78,7 @@ def kldiv(x,xp,k=3,base=2):
   treep = ss.cKDTree(xp)
   nn = [tree.query(point,k+1,p=float('inf'))[0][k] for point in x]
   nnp = [treep.query(point,k,p=float('inf'))[0][k-1] for point in x]
-  return (const + d*np.mean(map(log,nnp))-d*np.mean(map(log,nn)))/log(base)
+  return (const + d*np.mean(list(map(log,nnp)))-d*np.mean(list(map(log,nn))))/log(base)
 
 #####DISCRETE ESTIMATORS
 def entropyd(sx,base=2):
@@ -91,20 +91,20 @@ def midd(x,y):
   """ Discrete mutual information estimator
       Given a list of samples which can be any hashable object
   """
-  return -entropyd(zip(x,y))+entropyd(x)+entropyd(y)
+  return -entropyd(list(zip(x,y)))+entropyd(x)+entropyd(y)
 
 def cmidd(x,y,z):
   """ Discrete mutual information estimator
       Given a list of samples which can be any hashable object
   """
-  return entropyd(zip(y,z))+entropyd(zip(x,z))-entropyd(zip(x,y,z))-entropyd(z)
+  return entropyd(list(zip(y,z)))+entropyd(list(zip(x,z)))-entropyd(list(zip(x,y,z)))-entropyd(z)
 
 def hist(sx):
   #Histogram from list of samples
   d = dict()
   for s in sx:
     d[s] = d.get(s,0) + 1
-  return map(lambda z:float(z)/len(sx),d.values())
+  return list(map(lambda z:float(z)/len(sx),d.values()))
 
 def entropyfromprobs(probs,base=2):
 #Turn a normalized list of probabilities of discrete outcomes into entropy (base 2)
@@ -136,7 +136,7 @@ def micd(x,y,k=3,base=2,warning=True):
       mi -= word_dict[yval]*entropy(xgiveny,k,base)
     else:
       if warning:
-        print "Warning, after conditioning, on y=",yval," insufficient data. Assuming maximal entropy in this case."
+        print("Warning, after conditioning, on y=",yval," insufficient data. Assuming maximal entropy in this case.")
       mi -= word_dict[yval]*overallentropy
   return mi #units already applied
 
@@ -186,4 +186,4 @@ def zip2(*args):
   return [sum(sublist,[]) for sublist in zip(*args)]
 
 if __name__ == "__main__":
-  print "NPEET: Non-parametric entropy estimation toolbox. See readme.pdf for details on usage."
+  print("NPEET: Non-parametric entropy estimation toolbox. See readme.pdf for details on usage.")

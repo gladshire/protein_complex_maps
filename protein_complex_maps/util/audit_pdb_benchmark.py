@@ -23,49 +23,49 @@ import protein_complex_maps.pdb_util as pdbu
 
 def main():
 
-	parser = argparse.ArgumentParser(description="Plot precision recall of protein interactions for MB Stars graph estimation and correlation")
-	parser.add_argument("--pdb_list_filename", action="store", dest="pdb_list_filename", required=False, default=None,
-						help="File of benchmark pdbids")
-	parser.add_argument("--pdbid", action="store", dest="pdbid", required=False, default=None,
-						help="PDB id")
-	parser.add_argument("--base_species", action="store", dest="base_species", required=False, default="Hsapiens",
-						help="Species to evaluate, default=Hsapiens")
-	parser.add_argument("--pisa_dir", action="store", dest="pisa_dir", required=True, default=None,
-						help="Directory of pisa files for calculating surface area")
-	parser.add_argument("--matrix_ids", action="store", dest="matrix_ids", required=False, default=None,
-						help="Filename of ids in matrix")
-	parser.add_argument("--mb_matrix_ids", action="store", dest="mb_matrix_ids", required=False, default=None,
-						help="Filename of ids in mb matrix")
-	parser.add_argument("--mb_map_pickle", action="store_true", dest="mb_map_pickle", required=False, default=False,
-						help="Flag to load mb map from pickle file")
-	parser.add_argument("--mb_map_pickle_file", action="store", dest="mb_map_pickle_file", required=False, default="mb_map.p",
-						help="Filename of pickle map")
-	args = parser.parse_args()
+        parser = argparse.ArgumentParser(description="Plot precision recall of protein interactions for MB Stars graph estimation and correlation")
+        parser.add_argument("--pdb_list_filename", action="store", dest="pdb_list_filename", required=False, default=None,
+                                                help="File of benchmark pdbids")
+        parser.add_argument("--pdbid", action="store", dest="pdbid", required=False, default=None,
+                                                help="PDB id")
+        parser.add_argument("--base_species", action="store", dest="base_species", required=False, default="Hsapiens",
+                                                help="Species to evaluate, default=Hsapiens")
+        parser.add_argument("--pisa_dir", action="store", dest="pisa_dir", required=True, default=None,
+                                                help="Directory of pisa files for calculating surface area")
+        parser.add_argument("--matrix_ids", action="store", dest="matrix_ids", required=False, default=None,
+                                                help="Filename of ids in matrix")
+        parser.add_argument("--mb_matrix_ids", action="store", dest="mb_matrix_ids", required=False, default=None,
+                                                help="Filename of ids in mb matrix")
+        parser.add_argument("--mb_map_pickle", action="store_true", dest="mb_map_pickle", required=False, default=False,
+                                                help="Flag to load mb map from pickle file")
+        parser.add_argument("--mb_map_pickle_file", action="store", dest="mb_map_pickle_file", required=False, default="mb_map.p",
+                                                help="Filename of pickle map")
+        args = parser.parse_args()
 
 
-	pdb_list = []
-	if args.pdb_list_filename != None:
+        pdb_list = []
+        if args.pdb_list_filename != None:
             #kdrew: read in pdb list
-            pdb_list_file = open(args.pdb_list_filename,"rb")
+            pdb_list_file = open(args.pdb_list_filename,"r")
             for line in pdb_list_file.readlines():
                 pdb_list.append(line.strip())
-	elif args.pdbid != None:
+        elif args.pdbid != None:
             pdb_list.append(args.pdbid)
         else:
-            print "Use either --pdb_list_filename or --pdbid to specify PDB"
+            print("Use either --pdb_list_filename or --pdbid to specify PDB")
             return
 
 
-	interaction_list = []
-	mb_interaction_list = []
-	correlation_list = []
-	nd_list = []
+        interaction_list = []
+        mb_interaction_list = []
+        correlation_list = []
+        nd_list = []
         mb_list = []
         biogrid_list = []
 
         #kdrew: read in MB ids
         mb_matrix_ids_filename = args.mb_matrix_ids
-        mb_matrix_id_file = open(mb_matrix_ids_filename,"rb")
+        mb_matrix_id_file = open(mb_matrix_ids_filename,"r")
         mb_matrix_ensg_list = []
         for line in mb_matrix_id_file.readlines():
                 line_id = line.strip()
@@ -76,7 +76,7 @@ def main():
             mb_matrix_uniprot_map = pu.map_protein_ids(mb_matrix_ensg_list, "ENSEMBL_ID", "ACC")
             pickle.dump(mb_matrix_uniprot_map, open(args.mb_map_pickle_file,"wb"))
         else:
-            mb_matrix_uniprot_map = pickle.load(open(args.mb_map_pickle_file,"rb"))
+            mb_matrix_uniprot_map = pickle.load(open(args.mb_map_pickle_file,"rb"), encoding='latin1')
         #print mb_matrix_uniprot_map
 
         mb_matrix_id_dict = dict()
@@ -90,7 +90,7 @@ def main():
         matrix_ids_filename = args.matrix_ids
 
         #kdrew: read in matrix (ND) ids
-        matrix_id_file = open(matrix_ids_filename,"rb")
+        matrix_id_file = open(matrix_ids_filename,"r")
         matrix_id_list = []
         for line in matrix_id_file.readlines():
                 matrix_id_list.append(line.strip())
@@ -101,25 +101,25 @@ def main():
         protein_chain = dict()
         protein_accs = dict()
         combinations = dict()
-	#kdrew: for every pdb
-	for pdbid in pdb_list:
-            print pdbid
+        #kdrew: for every pdb
+        for pdbid in pdb_list:
+            print(pdbid)
 
             chain2acc = pu.get_pdb_protein_ids(pdbid)
-            print "chain2acc: %s" % chain2acc
-            print "# of pdb acc: %s" % (len(set(chain2acc.values())))
+            print("chain2acc: %s" % chain2acc)
+            print("# of pdb acc: %s" % (len(set(chain2acc.values()))))
             protein_accs[pdbid] =  list(set(chain2acc.values()))
 
             acc2base_species = pu.get_ortholog( [x for x in chain2acc.values() if x != None], species1=args.base_species, reversible=True)
-            print "acc2base_species: %s" % acc2base_species
-            print "# of pdb ortho: %s" % (1.0*len(set(acc2base_species.keys()))/2.0)
+            print("acc2base_species: %s" % acc2base_species)
+            print("# of pdb ortho: %s" % (1.0*len(set(acc2base_species.keys()))/2.0))
             #kdrew: remember these are both species and base species, divide by two
-            protein_ortho[pdbid] = acc2base_species.keys()
+            protein_ortho[pdbid] = list(acc2base_species.keys())
 
 
             pdb_matrix_id_list = []
             for pid in matrix_id_list:
-                if acc2base_species.has_key(pid):
+                if pid in acc2base_species:
                     pdb_matrix_id_list.append(pid)
                 else:
                     continue
@@ -128,11 +128,11 @@ def main():
             for i, pid_list in enumerate(mb_matrix_id_lists):
                 notfound_flag = True
                 for pid in pid_list:
-                    if acc2base_species.has_key(pid) and notfound_flag:
+                    if pid in acc2base_species and notfound_flag:
                         pdb_mb_matrix_id_list.append(pid)
                         mb_matrix_id_dict[pid] = i
                         notfound_flag = False
-                        print "%s %s" % (pid, mb_matrix_id_dict[pid])
+                        print("%s %s" % (pid, mb_matrix_id_dict[pid]))
 
             protein_mapped[pdbid] = pdb_mb_matrix_id_list
 
@@ -156,16 +156,16 @@ def main():
 
 
         for pdbid in protein_accs.keys():
-            print pdbid
-            print len(set(protein_accs[pdbid]))
-            print len(set(protein_ortho[pdbid]))
-            print len(set(protein_mapped[pdbid]))
-            print "combinations: %s" % combinations[pdbid]
+            print(pdbid)
+            print(len(set(protein_accs[pdbid])))
+            print(len(set(protein_ortho[pdbid])))
+            print(len(set(protein_mapped[pdbid])))
+            print("combinations: %s" % combinations[pdbid])
 
-        print "total interactions: %s" % sum(interaction_list)
+        print("total interactions: %s" % sum(interaction_list))
 
 if __name__ == "__main__":
-	main()
+        main()
 
 
 

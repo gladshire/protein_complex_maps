@@ -22,7 +22,7 @@ class ProteinUtilTest(unittest.TestCase):
 	def testOrtholog(self,):
 		
 		ortholog_map = pu.get_ortholog(["Q6P2Q9","Q92736"], "Hsapiens", "Celegans")
-		print ortholog_map
+		print(ortholog_map)
 		assert( ortholog_map["Q6P2Q9"] == "P34369")
 		assert( ortholog_map["Q92736"] == "I2HAA6")
 

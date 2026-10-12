@@ -3,7 +3,7 @@ import csv
 complexes_list = []
 
 #with open('allComplexes.csv','rb') as csvfile:
-with open('allComplexesCore.csv','rb') as csvfile:
+with open('allComplexesCore.csv','r') as csvfile:
 	complexes = csv.reader(csvfile, delimiter=';')
 	for row in complexes:
 		if row[3] == "Human" and row[4] != '':
@@ -15,9 +15,9 @@ for complex1 in complexes_list:
 	#print "%s" % (complex1[4])
 	#print "%s" % (ids)
 
-        trim_ids = []
+	trim_ids = []
 	for id1 in ids:
 		id1 = id1.translate(None, '()')
-		print id1
+		print(id1)
 
-        #print ' '.join(trim_ids)
+	#print ' '.join(trim_ids)

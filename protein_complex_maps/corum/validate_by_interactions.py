@@ -16,14 +16,14 @@ def main():
 
 	args = parser.parse_args()
 
-	print args
+	print(args)
 
 	#kdrew: using genemania's physical networks downloaded from http://pages.genemania.org/data/
 	db = MySQLdb.connect("localhost", 'kdrew', 'kdrew_utexas', 'genemania_20131024')
 
 
 	biclusters = dict()
-	f = open(args.bicluster_filename,'rb')
+	f = open(args.bicluster_filename,'r')
 	#kdrew: read in biclusters generated from corum_bicluster.py 
 	for line in f.readlines():
 		#print line
@@ -42,7 +42,7 @@ def main():
 
 	complexes_dict = dict()
 	#kdrew: read in corum complexes to get complete set of protein ids
-	with open(args.corum_file, 'rb') as csvfile:
+	with open(args.corum_file, 'r') as csvfile:
 		complexes = csv.reader(csvfile, delimiter=';')
 		for row in complexes:
 			if row[3] == "Human" and row[4] != '':
@@ -68,11 +68,11 @@ def main():
 
 	#kdrew: for every bicluster test to see if there are more connections in physical networks than random set from full complex
 	for gene_ids in biclusters:
-		print gene_ids
+		print(gene_ids)
 		bc = biclusters[gene_ids]
-		print bc
+		print(bc)
 		complex_gene_list = complexes_dict[biclusters[gene_ids].complex_key]
-		print complex_gene_list
+		print(complex_gene_list)
 		iset.get_interactions_from_db(complex_gene_list)
 
 		#for protID, protID2 in it.combinations(complexes_dict[biclusters[gene_ids].complex_key], 2):
@@ -80,14 +80,14 @@ def main():
 
 		#kdrew: weight is defined from genemania
 		bc_total_weight = iset.get_total_weight(gene_ids, float(args.threshold))
-		print "total interaction weight: %s" % (bc_total_weight,)
+		print("total interaction weight: %s" % (bc_total_weight,))
 
 
 		#kdrew: pick 1000 random protein sets from parent complex and calculate their physical interaction weight
 		bc_count = len(gene_ids)
 		random_total_weight_list = []
-		for i in xrange(1000):
-			random_genes = [ complex_gene_list[i] for i in sorted(random.sample(xrange(len(complex_gene_list)), bc_count)) ]
+		for i in range(1000):
+			random_genes = [ complex_gene_list[i] for i in sorted(random.sample(range(len(complex_gene_list)), bc_count)) ]
 			random_total_weight = iset.get_total_weight(random_genes, float(args.threshold))
 			random_total_weight_list.append(random_total_weight)
 
@@ -96,10 +96,10 @@ def main():
 		rstd = np.array(random_total_weight_list).std()
 		interaction_zscore = (bc_total_weight - rmean)/rstd
 
-		print "rmean: %s rstd: %s" % (rmean, rstd,)
-		print "interaction zscore: %s" % (interaction_zscore,)
-		print "bc: %s, interaction_zscore: %s" % (bc, interaction_zscore,)
-		print ""
+		print("rmean: %s rstd: %s" % (rmean, rstd,))
+		print("interaction zscore: %s" % (interaction_zscore,))
+		print("bc: %s, interaction_zscore: %s" % (bc, interaction_zscore,))
+		print("")
 
 
 
@@ -155,7 +155,7 @@ class InteractionSet(object):
 			try:
 				return self.interactions[(gene2, gene1)]
 			except KeyError:
-				print "non cache hit: %s %s" % (gene1, gene2,)
+				print("non cache hit: %s %s" % (gene1, gene2,))
 				self.get_interactions_from_db( [gene1, gene2] )
 				return self.get_interactions(gene1, gene2)
 

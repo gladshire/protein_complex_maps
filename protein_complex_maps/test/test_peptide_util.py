@@ -13,24 +13,24 @@ class PeptideTest(unittest.TestCase):
 	def setUp(self,):
 
 		sample_filename2 = "./test_data2.txt"
-		sample_file2 = open(sample_filename2, 'rb')
+		sample_file2 = open(sample_filename2, 'r')
 		msds = rd.MSDataSet()
 		msds.load_file(sample_file2, header=True)
 
 		peptide_filename = "./Hs_test.pepDict"
 		peptide_file = open(peptide_filename)
 
-		self.peptide_dict = ppu.read_peptide_dict(peptide_file, msds.get_id_dict().keys())
+		self.peptide_dict = ppu.read_peptide_dict(peptide_file, list(msds.get_id_dict().keys()))
 
 		peptide_file = open(peptide_filename)
 		self.peptide_dict2 = ppu.read_peptide_dict(peptide_file)
-		print "self.peptide_dict2:"
+		print("self.peptide_dict2:")
 		for key in self.peptide_dict2:
-			print key
+			print(key)
 			for pep in self.peptide_dict2[key]:
-				print pep
+				print(pep)
 
-			print ''
+			print('')
 
 
 		peptide_list_filename = "./Hs_test.peplist"
@@ -88,8 +88,8 @@ class PeptideTest(unittest.TestCase):
 		#print msds2.get_fraction_dict()
 
 		dmat = msds2.get_data_matrix()
-		print "dmat sum : %s" % dmat.sum()
-		print "\n"
+		print("dmat sum : %s" % dmat.sum())
+		print("\n")
 
 		assert( msds2.get_data_matrix()[msds2.get_id_dict()['ENSG00000010438'],msds2.get_fraction_dict()['PH090902_HS3NE_HCW_P2B05']] == 2.0)
 
@@ -99,8 +99,8 @@ class PeptideTest(unittest.TestCase):
 		msds2.create_by_peptide_counts( protein_count_dict, threshold=2 )
 
 		dmat = msds2.get_data_matrix()
-		print "dmat sum threshold: %s" % dmat.sum()
-		print "\n"
+		print("dmat sum threshold: %s" % dmat.sum())
+		print("\n")
 		
 
 if __name__ == "__main__":

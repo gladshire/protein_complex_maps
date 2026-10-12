@@ -71,17 +71,17 @@ class FeatureGenerator(object):
 		return self.create_logistic_regression(self.__column_feature_matrix, training_cols)
 
 	def create_logistic_regression(self, feature_matrix, training_cols):
-		print feature_matrix
-		print training_cols
+		print(feature_matrix)
+		print(training_cols)
 		data = feature_matrix[training_cols]
-		print "data: %s" % (data,)
+		print("data: %s" % (data,))
 		data['intercept'] = 1.0
-		print "data: %s" % (data,)
+		print("data: %s" % (data,))
 		train_cols = data.columns[ data.columns != self.label_header ]
-		print "train_cols: %s" % (train_cols,)
-		print "data[train_cols]: %s" % (data[train_cols])
+		print("train_cols: %s" % (train_cols,))
+		print("data[train_cols]: %s" % (data[train_cols]))
 		logit = sm.Logit(data[self.label_header], data[train_cols])
-		print logit
+		print(logit)
 		result = logit.fit(method='powell')
 		#print result
 		return logit, result
@@ -201,9 +201,9 @@ class FeatureGenerator(object):
 			#kdrew: calculate correlation of all rows in bicluster
 			corrDist = cu.correlation_distribution( submat )
 
-			print "corrDist: %s, len: %s" % (corrDist, len(bicluster1.columns()))
+			print("corrDist: %s, len: %s" % (corrDist, len(bicluster1.columns())))
 			tval_corrDist = cu.tvalue_correlation( corrDist, len(bicluster1.columns()) )
-			print "tval_corrDist: %s" % (tval_corrDist,)
+			print("tval_corrDist: %s" % (tval_corrDist,))
 
 			#kdrew: cannot calculate correlation gain if there is only 1 column
 			if len(bicluster1.columns()) == 1:
@@ -222,7 +222,7 @@ class FeatureGenerator(object):
 			bicluster1.add_column( i )
 
 			corr_gain = corrDist.mean() - corrDist_without_i.mean()
-			print "tval_corrDist.mean: %s tval_corrDist_without_i.mean: %s" % (tval_corrDist.mean(), tval_corrDist_without_i.mean())
+			print("tval_corrDist.mean: %s tval_corrDist_without_i.mean: %s" % (tval_corrDist.mean(), tval_corrDist_without_i.mean()))
 			tvalue_corr_gain = tval_corrDist.mean() - tval_corrDist_without_i.mean()
 			#print i, corr_gain
 

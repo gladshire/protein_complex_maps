@@ -14,7 +14,7 @@ import rpy2.robjects as ro
 from multiprocessing import Pool
 import multiprocessing as mp
 import argparse
-import cPickle
+import pickle
 import pickle
 import MySQLdb
 import emd
@@ -54,18 +54,18 @@ def main():
 	#print "setup pool"
 
 	#kdrew: pickle comes from running protein_complex_maps.util.read_ms_elutions_pickle_MSDS.py
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 	msds_id_dict = msds.get_id_dict()
 	msds_id_set = set(msds_id_dict.keys())
 
 	if args.complex_filename != None:
 
-		complex_file = open(args.complex_filename, 'rb')
+		complex_file = open(args.complex_filename, 'r')
 		complex_list = []
 		for i in complex_file.readlines():
 			complex_list.append(i.split())
 
-		print complex_list
+		print(complex_list)
 
 		for i, prot_ids in enumerate(complex_list):
 			if msds_id_set >= set(prot_ids):                                                                              
@@ -75,7 +75,7 @@ def main():
 					if args.numOfProcs > 1:
 						pool.apply_async(fit_ratios, (msds, prot_id_pairs), dict(ids_set2=args.set2_proteins, total_occupancy=args.total_occupancy, log_ratio=args.log_ratio, data_threshold=int(args.threshold), model_selection=args.model_selection))
 					else:
-						print prot_id_pairs
+						print(prot_id_pairs)
 						fit_ratios(msds, prot_id_pairs, ids_set2=args.set2_proteins, total_occupancy=args.total_occupancy, log_ratio=args.log_ratio, data_threshold=int(args.threshold), model_selection=args.model_selection)
 
 				#print "sent job"
@@ -88,7 +88,7 @@ def main():
 		fit_ratios(msds, args.complexes, ids_set2=None, total_occupancy=args.total_occupancy, log_ratio=args.log_ratio, data_threshold=int(args.threshold), complexes_mode=True, plot_filename=args.plot_filename, model_selection=args.model_selection)
 		
 	else:
-		print "use either --proteins or --complex_filename or --complexes to specify protein ids"
+		print("use either --proteins or --complex_filename or --complexes to specify protein ids")
 
 	pool.close()
 	pool.join()
@@ -119,14 +119,14 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 				try:
 					cursor.execute("select distinct p.proteinid from complex as c, complex_association as ca, protein as p where p.id = ca.protein_key and ca.complex_key = c.id and c.name = '%s'" % (name) )
 					complex_protein_ids = cursor.fetchall()
-					print complex_protein_ids
+					print(complex_protein_ids)
 					#kdrew: unpack sql output into list, flattens tuple of tuples
 					complex_protein_ids = [ele for tupl in complex_protein_ids for ele in tupl]
-					print complex_protein_ids
+					print(complex_protein_ids)
 					complex_protein_map[name] = complex_protein_ids
 					protein_ids = protein_ids + complex_protein_ids
-				except MySQLdb.Error, e:
-					print e
+				except MySQLdb.Error as e:
+					print(e)
 		else:
 			complex_protein_map['set1'] = ids
 			complex_protein_map['set2'] = ids_set2
@@ -137,7 +137,7 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 	else:
 		protein_ids = ids
 
-	print protein_ids
+	print(protein_ids)
 	data_set, new_id_map = msds.get_subdata_matrix(protein_ids) 
 
 
@@ -244,7 +244,7 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 
 
 		if len(ratio_dict[pair]) == 0:
-			print "WARNING: ratio_dict array has zero length for %s : %s" % (name0, name1,)
+			print("WARNING: ratio_dict array has zero length for %s : %s" % (name0, name1,))
 			return
 
 
@@ -253,13 +253,13 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 		xs = np.linspace(minimum, maximum, 100)
 
 		if complexes_mode:
-			print pair
+			print(pair)
 		else:
-			print new_id_map[pair[0]], new_id_map[pair[1]]
+			print(new_id_map[pair[0]], new_id_map[pair[1]])
 
 		#kdrew: check for nans and number fractions between pair is larger than threshold
 		if len(ratio_dict[pair]) < data_threshold or np.isnan(np.sum(ratio_dict[pair])):
-			print "WARNING: did not pass data_threshold or NANs in ratio calculation"
+			print("WARNING: did not pass data_threshold or NANs in ratio calculation")
 			return
 
 		#print ratio_dict[pair]
@@ -282,7 +282,7 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 		AIC = [m.aic(X) for m in models]
 		BIC = [m.bic(X) for m in models]
 
-		print "ARGMIN %s" % (np.argmin(BIC),)
+		print("ARGMIN %s" % (np.argmin(BIC),))
 		if model_selection == 'BIC':
 			model_id = np.argmin(BIC)
 		elif model_selection == 'AIC':
@@ -290,9 +290,9 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 		else:
 			try:
 				model_id = int(model_selection)-1
-			except ValueError, e:
-				print "ERROR: problem with model selection input, must be int"
-				print e
+			except ValueError as e:
+				print("ERROR: problem with model selection input, must be int")
+				print(e)
 				return
 
 		clf = models[model_id]
@@ -304,7 +304,7 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 
 		#print "weights:"
 		#print clf.weights
-		print "\n"
+		print("\n")
 		#print clf.converged_
 		#if clf.converged_:
 		#	print clf
@@ -316,16 +316,16 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 		protein_key1 = None
 		protein_key2 = None
 		if sql_store and cursor != None and not complexes_mode:
-			print "insert proteins"
+			print("insert proteins")
 			try:
 				stmt = "insert ignore into protein (proteinid) values ('%s')" % (new_id_map[pair[0]], )
 				cursor.execute(stmt)
 				db.commit()
 				cursor.execute("select id from protein where proteinid = '%s'" % (new_id_map[pair[0]]) )
 				protein_key1 = cursor.fetchone()[0]
-				print "protein_key1: %s" % (protein_key1,)
+				print("protein_key1: %s" % (protein_key1,))
 			except:
-				print "except protein insert: %s" % (stmt, )
+				print("except protein insert: %s" % (stmt, ))
 				db.rollback()
 
 			try:
@@ -334,7 +334,7 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 				db.commit()
 				cursor.execute("select id from protein where proteinid = '%s'" % (new_id_map[pair[1]]) )
 				protein_key2 = cursor.fetchone()[0]
-				print "protein_key2: %s" % (protein_key2,)
+				print("protein_key2: %s" % (protein_key2,))
 			except:
 				db.rollback()
 
@@ -365,22 +365,22 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 
 				#print "class %s (mean: %s) class2 %s (mean: %s) ks: %s" % (j, mean[0], k, mean2[0], ks_2samp(class_data, class_data2), )
 				if len(class_data) > data_threshold and len(class_data2) > data_threshold:
-					print "class %s (mean: %s) class2 %s (mean: %s) kl: %s, dip_pval: %s" % (j, mean[0], k, mean2[0], KL(class_data, class_data2), dippval )
+					print("class %s (mean: %s) class2 %s (mean: %s) kl: %s, dip_pval: %s" % (j, mean[0], k, mean2[0], KL(class_data, class_data2), dippval ))
 
 		#kdrew: print stats of individual classes found by GMM, store in sql if flag 
 		#kdrew: also plotting histogram (duplicated code from plot_ratios.py but this works for complexes mode
 		for j, (mean, color) in enumerate(zip(clf.means_, color_iter)):
 
-			print "clf.mean: %s clf.covar: %s" % (mean, clf._get_covars()[j][0],)
+			print("clf.mean: %s clf.covar: %s" % (mean, clf._get_covars()[j][0],))
 			class_data = np.array(ratio_dict[pair])[Y == j]
 
 			if len(class_data) > data_threshold:
 
 				if complexes_mode:
-					print "%s : %s, converged? %s, mean: %s (%s), median: %s (%s), std: %s (%s), counts: %s" % (pair[0], pair[1], clf.converged_, mean, np.exp(mean), np.median(class_data), np.exp(np.median(class_data)), np.std(class_data), np.std(np.exp(class_data)), len(class_data))
+					print("%s : %s, converged? %s, mean: %s (%s), median: %s (%s), std: %s (%s), counts: %s" % (pair[0], pair[1], clf.converged_, mean, np.exp(mean), np.median(class_data), np.exp(np.median(class_data)), np.std(class_data), np.std(np.exp(class_data)), len(class_data)))
 
 				else:
-					print "%s : %s, converged? %s, mean: %s (%s), median: %s (%s), counts: %s" % (new_id_map[pair[0]], new_id_map[pair[1]], clf.converged_, mean, np.exp(mean), np.median(class_data), np.exp(np.median(class_data)), len(class_data))
+					print("%s : %s, converged? %s, mean: %s (%s), median: %s (%s), counts: %s" % (new_id_map[pair[0]], new_id_map[pair[1]], clf.converged_, mean, np.exp(mean), np.median(class_data), np.exp(np.median(class_data)), len(class_data)))
 
 				if sql_store and cursor != None:
 					#print "insert ratios"
@@ -392,18 +392,18 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 							#print sql_insert
 							sql_insert_loaded = sql_insert % (protein_key1, protein_key2, mean[0], np.median(class_data), len(class_data), 1 if clf.converged_ else 0, j)
 
-						print sql_insert_loaded
+						print(sql_insert_loaded)
 						#kdrew: comment out for now
 						#cursor.execute(sql_insert_loaded)
 						#db.commit()
-					except MySQLdb.Error, e:
+					except MySQLdb.Error as e:
 						db.rollback()
-						print e
+						print(e)
 
 		data_subplots[1].hist(ratio_dict[pair], bins=30)
 				#data_subplots[i].plot(xs, mlab.normpdf(xs,mean,np.sqrt(clf._get_covars()[j][0])), color=color)
 
-		print '\n'
+		print('\n')
 														
 
 		xs_2d = np.array([(x,) for x in list(xs)])
@@ -447,7 +447,7 @@ def fit_ratios(msds, ids, ids_set2=None, total_occupancy=False, log_ratio=False,
 
 
 
-		print "Full set:  %s : %s, mean: %s (%s), median: %s (%s), std: %s (%s), counts: %s, dip test pvalue: %s, #ofGaussians: %s" % (name0, name1, ratio_dict_pair_array.mean(), np.exp(ratio_dict_pair_array.mean()), np.median(ratio_dict_pair_array), np.exp(np.median(ratio_dict_pair_array)), np.std(ratio_dict_pair_array), np.std(np.exp(ratio_dict_pair_array)), len(ratio_dict_pair_array), dippval, model_id+1)
+		print("Full set:  %s : %s, mean: %s (%s), median: %s (%s), std: %s (%s), counts: %s, dip test pvalue: %s, #ofGaussians: %s" % (name0, name1, ratio_dict_pair_array.mean(), np.exp(ratio_dict_pair_array.mean()), np.median(ratio_dict_pair_array), np.exp(np.median(ratio_dict_pair_array)), np.std(ratio_dict_pair_array), np.std(np.exp(ratio_dict_pair_array)), len(ratio_dict_pair_array), dippval, model_id+1))
 
 def KL( a_in, b_in ):
 	TINY_NUM  = 0.00001

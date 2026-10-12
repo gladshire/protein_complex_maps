@@ -1,7 +1,7 @@
 
 
 import glob
-import cPickle
+import pickle
 import argparse
 
 import protein_complex_maps.protein_util as pu
@@ -39,17 +39,17 @@ def main():
 
 	#kdrew: error checking
 	if not args.filename:
-		print "\nError: Specify --filename \n"
+		print("\nError: Specify --filename \n")
 		parser.print_help()
 		return
 
-	outfile = open(args.out_filename, "wb")
+	outfile = open(args.out_filename, "w")
 
 	ortholog_entry_list = []
 	prot_s1_list = []
 	prot_s2_list = []
 		
-	file1 = open(args.filename, 'rb')
+	file1 = open(args.filename, 'r')
 	for line in file1.readlines():
 		col_split = line.split('\t')
 		cluster_id = col_split[0]
@@ -79,7 +79,7 @@ def main():
 		else:
 			s2_map = pu.map_protein_ids(prot_s2_list, from_id=args.species2_from_id, to_id=args.to_id)
 
-		ortholog_map = dict(s1_map.items() + s2_map.items())
+		ortholog_map = dict(list(s1_map.items()) + list(s2_map.items()))
 
 	for entry in ortholog_entry_list:
 		if args.to_id == "":

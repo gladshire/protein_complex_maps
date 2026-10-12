@@ -100,7 +100,7 @@ def main():
 
 def draw_connections(c_list):
 
-	print "drawing connections"
+	print("drawing connections")
 
 	for conn in c_list:       
 		#sele = " + ".join(conn[0].prot_ids) 
@@ -166,29 +166,29 @@ def explode(sc_list):
 def explode_PNAS():
 
 	for name in cmd.get_names("objects"):
-		print name
+		print(name)
 
 
 		if name.startswith('a'):
 			cmd.color("red", name)
-			print "red"
+			print("red")
 			cmd.translate([0,-50,0], name)
 			cmd.enable(name)
 
 		elif name.startswith('b'):
 			cmd.color("blue", name)
-			print "blue"
+			print("blue")
 			cmd.translate([0,-100,0], name)
 			cmd.enable(name)
 
 		elif name.startswith('rpt'):
 			cmd.color("cyan", name)
-			print "cyan"
+			print("cyan")
 			cmd.enable(name)
 
 		elif name in ['rpn9', 'rpn5', 'rpn6', 'rpn7', 'rpn3', 'rpn12']:
 			cmd.color("green", name)
-			print "green"
+			print("green")
 			cmd.enable(name)
 			cmd.translate([-150,0,0], name)
 

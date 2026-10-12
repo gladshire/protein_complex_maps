@@ -16,7 +16,7 @@ class ReadDataTest(unittest.TestCase):
 	def setUp(self,):
 
 		sample_filename = "./test_data_uniprot.txt"
-		sample_file = open(sample_filename, 'rb')
+		sample_file = open(sample_filename, 'r')
 		self.msds = rd.MSDataSet()
 		self.msds.load_file(sample_file, header=True)
 
@@ -32,8 +32,8 @@ class ReadDataTest(unittest.TestCase):
 		ratios = rs.calculate_ratio(self.msds, "Q9Y6G5", "Q9UBI1" )
 		
 		test_ratios = np.array([-1.01531676, -1.01531676, -0.8392255,  -1.14025549]) 
-		print "test_ratios", test_ratios
-		print ratios[0], test_ratios[0]
+		print("test_ratios", test_ratios)
+		print(ratios[0], test_ratios[0])
 		#np.testing.assert_almost_equal( ratios[0], test_ratios[0] )  
 		#np.testing.assert_almost_equal( ratios[1], test_ratios[1] )  
 		#np.testing.assert_almost_equal( ratios[2], test_ratios[2] )  
@@ -81,16 +81,16 @@ class ReadDataTest(unittest.TestCase):
 
 
 	def testRelativeStoichiometry(self,):
-		print "relative_stoichiometry"
+		print("relative_stoichiometry")
 		prot_ids = ["Q9Y6G5", "Q9UBI1"]
 
 		filename = "./stoichiometry_list.txt"
-		sample_file = open(filename, 'rb')
+		sample_file = open(filename, 'r')
 		s_set = st.Stoichiometries() 
 		s_set.read_stoichiometries(sample_file)
 
 		results = rs.relative_stoichiometry(self.msds, prot_ids, s_set)
-		print results
+		print(results)
 
 
 if __name__ == "__main__":

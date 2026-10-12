@@ -22,12 +22,12 @@ def calculate_ratio(msds, protein_id1, protein_id2, log_transform=True):
 	try:
 		array1 = np.array(matrix[msds.get_id_dict()[protein_id1]])[0]
 	except KeyError:
-		print "Warning: missing id %s in msds" % (protein_id1)
+		print("Warning: missing id %s in msds" % (protein_id1))
 		return []
 	try:
 		array2 = np.array(matrix[msds.get_id_dict()[protein_id2]])[0]
 	except KeyError:
-		print "Warning: missing id %s in msds" % (protein_id2)
+		print("Warning: missing id %s in msds" % (protein_id2))
 		return []
 
 	#print array1
@@ -38,7 +38,7 @@ def calculate_ratio(msds, protein_id1, protein_id2, log_transform=True):
 	for a1, a2 in zip(array1, array2):
 		#print a1, a2
 		if a1 > 0.0 and a2 > 0.0:
-			print "a1 and a2 > 0.0, ratio: %s" % (a1/a2,)
+			print("a1 and a2 > 0.0, ratio: %s" % (a1/a2,))
 			ratio_list.append(a1/a2)
 
 	if log_transform:
@@ -74,12 +74,12 @@ def relative_stoichiometry_probability( stoichiometry, prior, msds, prot_ids, sc
 	#print "prior log_probability: %s" % (log_probability,)
 	#kdrew: for all combinations of pairs (ex. (A,B), (A,C), (B,C))
 	for pair in it.combinations(''.join(stoichiometry.keys()), 2):	
- 		pair_logratio = np.log10(1.0*stoichiometry[pair[0]]/stoichiometry[pair[1]])
+		pair_logratio = np.log10(1.0*stoichiometry[pair[0]]/stoichiometry[pair[1]])
 		#print "stoichiometry pair: %s, pair_logratio: %s" % (pair, pair_logratio,)
 		pair_norm = norm(loc=pair_logratio, scale=scale)
 
 		ratios = calculate_ratio( msds, prot_ids[pair[0]], prot_ids[pair[1]] )
-		print "number of data points between %s and %s : %s" % (prot_ids[pair[0]], prot_ids[pair[1]], len(ratios), )
+		print("number of data points between %s and %s : %s" % (prot_ids[pair[0]], prot_ids[pair[1]], len(ratios), ))
 		num_data_points.append(len(ratios))
 
 
@@ -90,14 +90,14 @@ def relative_stoichiometry_probability( stoichiometry, prior, msds, prot_ids, sc
 		if check_for_single_class:
 			clf = mixture.GMM(n_components=5)
 			X = np.array([[x,] for x in ratios])
-			print X
+			print(X)
 			if len(X) > 5:
 				clf.fit(X)
 				Y = clf.predict(X)
 				numOfClasses = len(set(Y))
-				print "numOfClasses: %s converged? %s" % (numOfClasses, clf.converged_,)
+				print("numOfClasses: %s converged? %s" % (numOfClasses, clf.converged_,))
 				if numOfClasses > 1 or not clf.converged_:
-					print "more than 1 class or not converged, setting single_class_flag = false"
+					print("more than 1 class or not converged, setting single_class_flag = false")
 					single_class_flag = False
 
 		if set_std:
@@ -114,8 +114,8 @@ def relative_stoichiometry_probability( stoichiometry, prior, msds, prot_ids, sc
 				log_probability = log_probability + np.log(pair_norm.pdf(r))
 				#print "updated log_probability: %s" % (log_probability,)
 
-		print "mean: %s median: %s mean_pdf: %s median_pdf: %s" % (ratios.mean(), np.median(ratios), pair_norm.pdf(ratios.mean()), pair_norm.pdf(np.median(ratios)))
-		print "ratios: %s" % (ratios,)
+		print("mean: %s median: %s mean_pdf: %s median_pdf: %s" % (ratios.mean(), np.median(ratios), pair_norm.pdf(ratios.mean()), pair_norm.pdf(np.median(ratios))))
+		print("ratios: %s" % (ratios,))
 	#print stoichiometry, log_probability
 	return log_probability, num_data_points, single_class_flag
 
@@ -143,7 +143,7 @@ def relative_stoichiometry( msds, ids, stoichiometries, prior_type="uniform" ):
 	#kdrew: assign letter to each protein id
 	for i, key in enumerate(stoichiometries_slim[0]):
 		prot_ids[key] = ids[i]
-	print "prot_ids: %s" % (prot_ids,)
+	print("prot_ids: %s" % (prot_ids,))
 
 	
 	single_class_flag_global = True
@@ -159,12 +159,12 @@ def relative_stoichiometry( msds, ids, stoichiometries, prior_type="uniform" ):
 
 		#kdrew: single class flag is set FALSE when GMM returns multiple classes
 		log_prob, num_data_points, single_class_flag  = relative_stoichiometry_probability( stoich, prior, msds, prot_ids ) 
-		print "stoich: %s prior: %s log_prob: %s" % (stoich, prior, log_prob)
+		print("stoich: %s prior: %s log_prob: %s" % (stoich, prior, log_prob))
 		results[stoich.__str__()] = log_prob
 
 		#kdrew: if any calculation comes back that did not converge to a single class according to GMM, flag globally
 		if not single_class_flag:
-			print "setting single_class_flag_global to False"
+			print("setting single_class_flag_global to False")
 			single_class_flag_global = False
 	
 	return results, num_data_points, prot_ids, single_class_flag_global

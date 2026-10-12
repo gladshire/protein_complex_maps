@@ -40,14 +40,14 @@ def main():
     #kdrew: sec data (fractions 7-40) keyed on uniprot
     sec_data = dict()
 
-    with open(args.sec_filename, 'rb') as sec_file:
+    with open(args.sec_filename, 'r') as sec_file:
         reader = csv.reader(sec_file)
         for row in reader:
             if row[0] in args.proteins:
-                sec_data[ row[0] ] = map( float, row[1:34] )
+                sec_data[ row[0] ] = list(map( float, row[1:34] ))
 
-    print "SEC DATA"
-    print sec_data
+    print("SEC DATA")
+    print(sec_data)
 
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
@@ -56,9 +56,9 @@ def main():
 
 
     #kdrew: make initial array all equal to 1.0
-    combined_data = np.repeat(1.0,len(sec_data[sec_data.keys()[0]]))
-    print combined_data
-    total_data = np.repeat(0.0,len(sec_data[sec_data.keys()[0]]))
+    combined_data = np.repeat(1.0,len(sec_data[list(sec_data.keys())[0]]))
+    print(combined_data)
+    total_data = np.repeat(0.0,len(sec_data[list(sec_data.keys())[0]]))
 
 
     individual_color = '0.90'
@@ -75,18 +75,18 @@ def main():
                     ax1.plot( sec_data[i])
                     #ax2.plot( sec_data[i])
                     proteins_present.append(i)
-                except KeyError, e:
-                    print "KeyError: %s, skipping" % (e,)
+                except KeyError as e:
+                    print("KeyError: %s, skipping" % (e,))
                     continue
 
             sec_data_noised = np.array(sec_data[i]) + TINY_NUM
             combined_data = combined_data * sec_data_noised
-            print "########################"
-            print np.array(sec_data[i]).max() 
-            print combined_data
-            print combined_data.max()
+            print("########################")
+            print(np.array(sec_data[i]).max()) 
+            print(combined_data)
+            print(combined_data.max())
             combined_data = combined_data/combined_data.max()
-            print combined_data
+            print(combined_data)
             total_data = total_data + sec_data[i]
 
 
@@ -95,8 +95,8 @@ def main():
     else:
         #ax1.legend(sec_data.keys())
         ax1.legend([id_map[i] for i in proteins_present],prop={'size':7})
-        print [id_map[i] for i in proteins_present]
-        print id_map
+        print([id_map[i] for i in proteins_present])
+        print(id_map)
         #print "not setting legend"
 
 
@@ -125,10 +125,10 @@ def main():
     plt.savefig(args.plot_filename)
 
 
-    print total_data
+    print(total_data)
     p0 = [1., 12.0, 1.]
-    bins = np.arange(0,len(sec_data[sec_data.keys()[0]]))
-    print bins
+    bins = np.arange(0,len(sec_data[list(sec_data.keys())[0]]))
+    print(bins)
     #kdrew: mask is for commander complex
     mask_total_data =  total_data * [0.0,0.0,0.0,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.0]
     coeff, var_matrix = curve_fit(gauss, bins, mask_total_data, p0=p0)
@@ -140,9 +140,9 @@ def main():
     #plt.plot(bin_centres, hist_fit, label='Fitted data')
 
     # Finally, lets get the fitting parameters, i.e. the mean and standard deviation:
-    print 'masked Raw Fitted mean = ', coeff[1]
-    print 'masked Adjusted Fitted mean = ', coeff[1] + 7
-    print 'masked Fitted standard deviation = ', coeff[2]
+    print('masked Raw Fitted mean = ', coeff[1])
+    print('masked Adjusted Fitted mean = ', coeff[1] + 7)
+    print('masked Fitted standard deviation = ', coeff[2])
 
 #http://stackoverflow.com/questions/11507028/fit-a-gaussian-function
 # Define model function to be used to fit to the data above:

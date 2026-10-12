@@ -13,8 +13,8 @@ np.random.seed(1234)
 sample_filename1 = "/home/kdrew/data/protein_complex_maps/sample_data/Hs_hekN_1108_psome_exosc_randos.txt"
 sample_filename2 = "/home/kdrew/data/protein_complex_maps/sample_data/Hs_helaN_ph_hcw120_2_psome_exosc_randos.txt"
 
-sample_file1 = open(sample_filename1, 'rb')
-sample_file2 = open(sample_filename2, 'rb')
+sample_file1 = open(sample_filename1, 'r')
+sample_file2 = open(sample_filename2, 'r')
 
 data_matrix1, name_list1 = rd.read_datafile(sample_file1)
 data_matrix2, name_list2 = rd.read_datafile(sample_file2)
@@ -33,7 +33,7 @@ clean_data_matrix_min2one1 = nu.min_to_one_scale( clean_data_matrix_normalized1 
 clean_data_matrix_min2one2 = nu.min_to_one_scale( clean_data_matrix_normalized2 )
 
 clean_data_matrix, name_list = rd.concat_data_matrix( clean_data_matrix_noised1, name_list1, clean_data_matrix_noised2, name_list2)
-print clean_data_matrix
+print(clean_data_matrix)
 
 clean_data_matrix_normalized, name_list_normalized = rd.concat_data_matrix( clean_data_matrix_normalized1, name_list1, clean_data_matrix_normalized2, name_list2)
 
@@ -54,85 +54,85 @@ proteasome_lid_bicluster_submatrix = bc.Bicluster(rows = [5,6,7,8,9,10,11], cols
 #pb.plot_bicluster(clean_data_matrix, proteasome_lid_bicluster, savefilename="/home/kdrew/public_html/test/bicluster_proteasome_lid_plot.pdf" )
 pb.plot_bicluster(proteasome_lid_bicluster_background.get_submatrix(clean_data_matrix), proteasome_lid_bicluster_submatrix, savefilename="/home/kdrew/public_html/test/bicluster_proteasome_lid_plot.pdf" )
 
-print "\n"
+print("\n")
 
-print "clean_data_matrix: normal bicluster"
+print("clean_data_matrix: normal bicluster")
 proteasome_lid_bicluster.print_submatrix(clean_data_matrix)
-print "\tmultidot"
+print("\tmultidot")
 mdn_randsamp.print_score( clean_data_matrix, proteasome_lid_bicluster )
-print "\tmultidot perunit"
+print("\tmultidot perunit")
 mdpu_randsamp.print_score( clean_data_matrix, proteasome_lid_bicluster )
 #sum_randsamp.print_score( clean_data_matrix, proteasome_lid_bicluster )
 
-print "\n"
+print("\n")
 
-print "clean_data_matrix: wide bicluster"
+print("clean_data_matrix: wide bicluster")
 proteasome_lid_bicluster_w_common_column.print_submatrix(clean_data_matrix)
-print "\tmultidot"
+print("\tmultidot")
 mdn_randsamp.print_score( clean_data_matrix, proteasome_lid_bicluster_w_common_column )
-print "\tmultidot perunit"
+print("\tmultidot perunit")
 mdpu_randsamp.print_score( clean_data_matrix, proteasome_lid_bicluster_w_common_column )
 #sum_randsamp.print_score( clean_data_matrix, proteasome_lid_bicluster_w_common_column )
 
-print "\n"
+print("\n")
 
-print "clean_data_matrix: compact bicluster"
+print("clean_data_matrix: compact bicluster")
 proteasome_lid_bicluster_compact.print_submatrix(clean_data_matrix)
-print "\tmultidot"
+print("\tmultidot")
 mdn_randsamp.print_score( clean_data_matrix, proteasome_lid_bicluster_compact )
-print "\tmultidot perunit"
+print("\tmultidot perunit")
 mdpu_randsamp.print_score( clean_data_matrix, proteasome_lid_bicluster_compact )
 
-print "\n"
+print("\n")
 
-print "normalized scaled data: normal bicluster"
+print("normalized scaled data: normal bicluster")
 proteasome_lid_bicluster.print_submatrix(clean_data_matrix_min2one)
-print "\tmultidot"
+print("\tmultidot")
 mdn_randsamp.print_score( clean_data_matrix_min2one, proteasome_lid_bicluster )
-print "\tmultidot perunit"
+print("\tmultidot perunit")
 mdpu_randsamp.print_score( clean_data_matrix_min2one, proteasome_lid_bicluster )
 
-print "\n"
+print("\n")
 
-print "normalized scaled data: wide bicluster"
+print("normalized scaled data: wide bicluster")
 proteasome_lid_bicluster_w_common_column.print_submatrix(clean_data_matrix_min2one)
-print "\tmultidot"
+print("\tmultidot")
 mdn_randsamp.print_score( clean_data_matrix_min2one, proteasome_lid_bicluster_w_common_column )
-print "\tmultidot perunit"
+print("\tmultidot perunit")
 mdpu_randsamp.print_score( clean_data_matrix_min2one, proteasome_lid_bicluster_w_common_column )
 
-print "\n"
+print("\n")
 
-print "normalized scaled data: compact bicluster"
+print("normalized scaled data: compact bicluster")
 proteasome_lid_bicluster_compact.print_submatrix(clean_data_matrix_min2one)
-print "\tmultidot"
+print("\tmultidot")
 mdn_randsamp.print_score( clean_data_matrix_min2one, proteasome_lid_bicluster_compact)
-print "\tmultidot perunit"
+print("\tmultidot perunit")
 mdpu_randsamp.print_score( clean_data_matrix_min2one, proteasome_lid_bicluster_compact)
 
-print "\n"
+print("\n")
 
-print "normalized data: normal bicluster"
+print("normalized data: normal bicluster")
 proteasome_lid_bicluster.print_submatrix(clean_data_matrix_normalized)
-print "\tmultidot"
+print("\tmultidot")
 mdn_randsamp.print_score( clean_data_matrix_normalized, proteasome_lid_bicluster )
-print "\tmultidot perunit"
+print("\tmultidot perunit")
 mdpu_randsamp.print_score( clean_data_matrix_normalized, proteasome_lid_bicluster )
 
-print "\n"
+print("\n")
 
-print "normalized data: wide bicluster"
+print("normalized data: wide bicluster")
 proteasome_lid_bicluster_w_common_column.print_submatrix(clean_data_matrix_normalized)
-print "\tmultidot"
+print("\tmultidot")
 mdn_randsamp.print_score( clean_data_matrix_normalized, proteasome_lid_bicluster_w_common_column )
-print "\tmultidot perunit"
+print("\tmultidot perunit")
 mdpu_randsamp.print_score( clean_data_matrix_normalized, proteasome_lid_bicluster_w_common_column )
 
-print "\n"
+print("\n")
 
-print "normalized data: compact bicluster"
+print("normalized data: compact bicluster")
 proteasome_lid_bicluster_compact.print_submatrix(clean_data_matrix_normalized)
-print "\tmultidot"
+print("\tmultidot")
 mdn_randsamp.print_score( clean_data_matrix_normalized, proteasome_lid_bicluster_compact)
-print "\tmultidot perunit"
+print("\tmultidot perunit")
 mdpu_randsamp.print_score( clean_data_matrix_normalized, proteasome_lid_bicluster_compact)

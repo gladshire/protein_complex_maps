@@ -36,8 +36,8 @@ def main():
 
 	args = parser.parse_args()
 
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
-	print "after msds"
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
+	print("after msds")
 	#print hmem.heap()
 
 	#if args.proteins != None:
@@ -48,24 +48,24 @@ def main():
 
 	#kdrew: get data frames
 	dataframe = msds.get_data_frame()
-	print "after dataframe"
+	print("after dataframe")
 	#print hmem.heap()
 
 	del msds
 	gc.collect()
-	print "del msds"
+	print("del msds")
 	#print hmem.heap()
 
 	#dataframe = pandas.concat([dataframe,df])
 
 	#kdrew: run correlation
 	corrMat = dataframe.corr()
-	print "after corrMat"
+	print("after corrMat")
 	#print hmem.heap()
 
 	del dataframe
 	gc.collect()
-	print "del dataframe"
+	print("del dataframe")
 	#print hmem.heap()
 
 	#kdrew: make indices
@@ -81,18 +81,18 @@ def main():
 	corrMat.index = index_number_list
 
 	corrMat_stack = corrMat.stack()
-	print "after corrMat_stack"
+	print("after corrMat_stack")
 	#print hmem.heap()
 
 	del corrMat
 	gc.collect()
-	print "del corrMat"
+	print("del corrMat")
 	#print hmem.heap()
 
 	if args.remove_self:
 		#kdrew: use generator instead of list
 		corrMat_stack = corrMat_stack.drop(( (k,k) for k in index_list ) )
-	print "after removed self"
+	print("after removed self")
 
 	##kdrew: break stack into pieces so hopefully save some memory
 	#corrMat_pieces = np.array_split(corrMat_stack, args.pieces)
@@ -129,8 +129,8 @@ def main():
 		out_handle = sys.stdout
 		map_out_handle = sys.stdout
 	else:
-		out_handle = open(args.out_filename,"wb")
-		map_out_handle = open(args.out_filename+".map","wb")
+		out_handle = open(args.out_filename,"w")
+		map_out_handle = open(args.out_filename+".map","w")
 
 	#for i,j in results:
 	#	if i == j and args.remove_self:
@@ -138,7 +138,7 @@ def main():
 	#	out_handle.write("%s\t%s\t%s\n" % (i+args.offset, j+args.offset, results[(i,j)],))
 
 	corrMat_stack.to_csv(out_handle, sep=' ')
-	print "after to_csv"
+	print("after to_csv")
 	#print hmem.heap()
 
 	for i,j in index_map:

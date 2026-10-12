@@ -94,7 +94,7 @@ def threshold(data_matrix, threshold, absent=0):
 
 	data_matrix[below_threshold] = absent
 
-	print "number below_threshold %s" % (len(below_threshold),)
+	print("number below_threshold %s" % (len(below_threshold),))
 
 	return data_matrix
 
@@ -113,18 +113,18 @@ def binary(data_matrix, threshold=0.0, present=1, absent=0):
 def normalize_length(data_matrix, id_dict, initialize=np.nan):
 	length_array = np.repeat(initialize, data_matrix.shape[0])
 
-	length_dict = pu.get_length_uniprot(id_dict.keys())
+	length_dict = pu.get_length_uniprot(list(id_dict.keys()))
 	for id in id_dict.keys():
 		try:
 			length_array[id_dict[id]] = length_dict[id]
 		except KeyError:
 			continue
 
-	print data_matrix
+	print(data_matrix)
 	#kdrew: transpose to do division
 	data_matrix = data_matrix.T/length_array
 
-	print data_matrix.T
+	print(data_matrix.T)
 	#kdrew: "retranspose" to get data matrix back into form
 	return data_matrix.T
 
@@ -158,7 +158,7 @@ def normalize_peptide_count(data_matrix, id_dict, peptide_file, peptide_counts=F
 	#kdrew: transpose to do division
 	data_matrix = data_matrix.T/peptide_array
 
-	print data_matrix.T
+	print(data_matrix.T)
 	#kdrew: "retranspose" to get data matrix back into form
 	return data_matrix.T
 		

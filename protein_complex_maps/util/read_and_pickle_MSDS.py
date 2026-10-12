@@ -1,7 +1,7 @@
 
 
 import glob
-import cPickle
+import pickle
 import argparse
 import pickle 
 import numpy as np
@@ -54,7 +54,7 @@ def main():
 	elif args.fill_missing == "nans":
 		fill_missing = rd.fill_missing_with_nans
 	else:
-		print "problem with fill_missing, should be 'zeros' or 'nans'"
+		print("problem with fill_missing, should be 'zeros' or 'nans'")
 
 	#kdrew: read in ms files
 	#sample_filenames = "/home/kdrew/data/protein_complex_maps/shared_complexes/source_data/elutions_protein_counts/CeDmHsMmSp_ms2_elutions/Hs_*"
@@ -63,13 +63,13 @@ def main():
 	if not args.msds_filenames:
 		if not args.peplist_filenames or not args.pepdict_filename:
 			if not args.msds_pickle_filename_2:
-				print "\nError: Specify either --input_msds_files or (--input_peplist_files and --input_pepdict_file) or --input_msds_pickle \n"
+				print("\nError: Specify either --input_msds_files or (--input_peplist_files and --input_pepdict_file) or --input_msds_pickle \n")
 				parser.print_help()
 				return
 		
 
 	if args.msds_pickle_filename:
-		msds = pickle.load( open( args.msds_pickle_filename, "rb" ) )
+		msds = pickle.load( open( args.msds_pickle_filename, "rb" ), encoding='latin1' )
 
 	else:
 		msds = rd.MSDataSet()
@@ -77,7 +77,7 @@ def main():
 
 	if args.msds_pickle_filename_2:
 		for i, msds_pickle_filename in enumerate(args.msds_pickle_filename_2):
-			msds2 = pickle.load( open( msds_pickle_filename, "rb" ) )
+			msds2 = pickle.load( open( msds_pickle_filename, "rb" ), encoding='latin1' )
 
 			if args.species1 and args.species2:
 				#kdrew: the min for indexing will use the last specified species for all remaining files
@@ -92,15 +92,15 @@ def main():
 	if args.msds_filenames:
 		#for sample_filename1 in glob.iglob(sample_filenames):
 		for sample_filename1 in args.msds_filenames:
-			print sample_filename1
-			sample_file1 = open(sample_filename1, 'rb')
+			print(sample_filename1)
+			sample_file1 = open(sample_filename1, 'r')
 			msds.load_file(sample_file1, header=True, standardize=args.standardize, normalize=args.normalize)
 
 			#data_matrix = msds.get_data_matrix()
 
 	#kdrew: add to msds by peptide counts
 	if args.peplist_filenames and args.pepdict_filename:
-		pepdict_file = open(args.pepdict_filename,'rb')
+		pepdict_file = open(args.pepdict_filename,'r')
 
 		if args.protein_list:
 			peptide_dict = ppu.read_peptide_dict(pepdict_file, args.protein_list)
@@ -114,8 +114,8 @@ def main():
 			peptide_dict = ppu.read_peptide_dict(pepdict_file)
 
 		for peptide_list_filename in args.peplist_filenames:
-			print peptide_list_filename
-			peptide_list_file = open(peptide_list_filename, 'rb')
+			print(peptide_list_filename)
+			peptide_list_file = open(peptide_list_filename, 'r')
 			peptide_count_dict = ppu.read_peptide_list(peptide_list_file)
 
 			#kdrew: collate peptide counts with peptide protein mapping
@@ -124,7 +124,7 @@ def main():
 			#kdrew: add protein spectral counts to msds
 			msds.create_by_peptide_counts( protein_count_dict, args.spectral_count_mean, int(args.peptide_threshold), standardize=args.standardize)
 
-	print msds.get_id_dict()
+	print(msds.get_id_dict())
 
 	pickle.dump( msds, open( args.out_filename, "wb"))
 

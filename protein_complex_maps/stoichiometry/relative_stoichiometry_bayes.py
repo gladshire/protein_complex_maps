@@ -35,12 +35,12 @@ target_list = list()
 
 #kdrew: setup data in n x 1 array, 1 feature of median of ratio list
 for pdb in stoich_data_set:
-	print pdb
+	print(pdb)
 	pdb_stoich = stoich_data_set[pdb]
-	print pdb_stoich
+	print(pdb_stoich)
 	
 	for pair in it.combinations(pdb_stoich.keys(),2):
-		print pair
+		print(pair)
 		pair_ratios = rs.calculate_ratio(msds, pair[0], pair[1])
 		if len(pair_ratios) < data_threshold:
 			continue
@@ -62,15 +62,15 @@ for pdb in stoich_data_set:
 
 
 
-for i in xrange(len(data_list)):
-	print data_list[i], target_list[i]
+for i in range(len(data_list)):
+	print(data_list[i], target_list[i])
 
 data_array = np.array(data_list)
 data_array = data_array.reshape(len(data_list),1)
 
 target_array = np.array(target_list)
 
-print all_stoichs
+print(all_stoichs)
 
 
 cv = StratifiedKFold(target_array, n_folds=6)
@@ -84,12 +84,12 @@ all_tpr = []
 for i, (train, test) in enumerate(cv):
 	predictions = gnb.fit(data_array[train], target_array[train]).predict(data_array[test])
 
-	print "test: %s" % target_array[test]
-	print "predictions: %s" % predictions
-	print "target_array: %s" % (target_array[test] == 0)
-	print "predictions: %s" % (predictions == 0)
+	print("test: %s" % target_array[test])
+	print("predictions: %s" % predictions)
+	print("target_array: %s" % (target_array[test] == 0))
+	print("predictions: %s" % (predictions == 0))
 	fpr, tpr, thresholds = roc_curve(target_array[test], predictions == 0, pos_label=0)
-	print "fpr: %s tpr: %s thresholds: %s" % (fpr,tpr, thresholds)
+	print("fpr: %s tpr: %s thresholds: %s" % (fpr,tpr, thresholds))
 	mean_tpr += interp(mean_fpr, fpr, tpr)
 	mean_tpr[0] = 0.0
 	roc_auc = auc(fpr, tpr)

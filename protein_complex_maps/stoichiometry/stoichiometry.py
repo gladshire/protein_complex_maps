@@ -29,7 +29,7 @@ class Stoichiometries(list):
 
 		read_list = []
 		for line in file_handle.readlines():
-			print line
+			print(line)
 			s, cnt = line.split()
 			s_list = re.split('([A-Z])',s)
 			stoich = Stoichiometry(count=int(cnt))
@@ -37,7 +37,7 @@ class Stoichiometries(list):
 				if i%2 == 0:
 					continue
 				#kdrew: TODO deal with weird pdb format that has '?' for chain numbers
-				print i, s_list[i], s_list[i+1]
+				print(i, s_list[i], s_list[i+1])
 				if s_list[i+1] == '':
 					s_list[i+1] = 1
 
@@ -46,7 +46,7 @@ class Stoichiometries(list):
 			read_list.append(stoich)
 
 		for stoich in read_list:
-			print stoich
+			print(stoich)
 			permut_set = set()
 			for permut in it.permutations(stoich.values(), len(stoich)):
 				permut_set.add(permut)

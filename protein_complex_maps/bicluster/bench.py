@@ -104,7 +104,7 @@ def plot_cluster_stats(stats_nmf, stats_mc, savefilename, title, stats_nmf_raw=N
         except Exception as e:
             # never let a plotting problem kill a long run: fall back to PNG next to the intended PDF
             fallback = savefilename.rsplit(".", 1)[0] + ".png"
-            print("WARNING: could not save %s (%s); wrote %s instead" % (savefilename, e, fallback))
+            print(("WARNING: could not save %s (%s); wrote %s instead" % (savefilename, e, fallback)))
             fig.savefig(fallback, dpi=150)
         plt.close(fig)
 

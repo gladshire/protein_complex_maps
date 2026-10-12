@@ -174,12 +174,12 @@ class NormalizationTest(unittest.TestCase):
 
 	def testMinToOne(self,):
 		data_matrix_column_noise = nu.add_noise_over_columns(self.data_matrix)
-		print data_matrix_column_noise
+		print(data_matrix_column_noise)
 		data_matrix_normalized = nu.normalize_over_rows(data_matrix_column_noise)
-		print data_matrix_normalized
+		print(data_matrix_normalized)
 		data_matrix_mintoone = nu.min_to_one_scale(data_matrix_normalized)
-		print data_matrix_mintoone
-		print data_matrix_mintoone[0,0]
+		print(data_matrix_mintoone)
+		print(data_matrix_mintoone[0,0])
 		np.testing.assert_almost_equal( data_matrix_mintoone[0,0], 15.7 )
 		np.testing.assert_almost_equal( data_matrix_mintoone[1,8], 1.0 )
 		np.testing.assert_almost_equal( data_matrix_mintoone[2,8], 50.0 )
@@ -214,15 +214,15 @@ class NormalizationTest(unittest.TestCase):
 		id_dict['Q9Y6G5'] = 2
 		id_dict['Q9UBI1'] = 4
 		dm_length = nu.normalize_length(self.data_matrix, id_dict)
-		print dm_length
-		print dm_length[0,0]
+		print(dm_length)
+		print(dm_length[0,0])
 		assert( np.isnan(dm_length[0,0]) )
 		np.testing.assert_almost_equal( dm_length[2,5], 0.01930693 )
 
 	def testPeptide(self, ):
 
 		sample_filename2 = "./test_data2.txt"
-		sample_file2 = open(sample_filename2, 'rb')
+		sample_file2 = open(sample_filename2, 'r')
 		msds = rd.MSDataSet()
 		msds.load_file(sample_file2, header=True)
 
@@ -231,7 +231,7 @@ class NormalizationTest(unittest.TestCase):
 
 		dm_peptide = nu.normalize_peptide_count(msds.get_data_matrix(), msds.get_id_dict(), peptide_file)
 		
-		print dm_peptide
+		print(dm_peptide)
 		np.testing.assert_almost_equal( dm_peptide[4,3], 0.450261780104712) #kdrew: 86.0/191
 		np.testing.assert_almost_equal( dm_peptide[5,2], 0.03333333333333333) #kdrew: 2.0/60
 

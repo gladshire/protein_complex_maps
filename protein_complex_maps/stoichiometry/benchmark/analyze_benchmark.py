@@ -6,7 +6,7 @@ import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
 import itertools as it
-import cPickle 
+import pickle 
 import operator
 import ast
 import argparse
@@ -40,12 +40,12 @@ def main():
 
 	#kdrew: pickle comes from running protein_complex_maps.stoichiometry.benchmark.build_pdb_benchmark.py
 	#mscpdbs = cPickle.load(open("/home/kdrew/scripts/protein_complex_maps/protein_complex_maps/stoichiometry/benchmark/ms_complete_pdbs.p", "rb"))
-	mscpdbs = cPickle.load(open(args.benchmark_filename, "rb"))
+	mscpdbs = pickle.load(open(args.benchmark_filename, "rb"), encoding='latin1')
 
 	#kdrew: pickle comes from protein_complex_maps.stoichiometry.benchmark.compute_benchmark_probs.py
 	#mscpdbs_results = cPickle.load(open("/home/kdrew/scripts/protein_complex_maps/protein_complex_maps/stoichiometry/benchmark/HS_ms2_elutions_msds_ms_complete_pdbs_results.p", "rb"))
 	#mscpdbs_results = cPickle.load(open("/home/kdrew/scripts/protein_complex_maps/protein_complex_maps/stoichiometry/benchmark/HS_ms2_elutions_msds_lenNormal_mean_ratio_true_ms_complete_pdbs_results.p", "rb"))
-	mscpdbs_results = cPickle.load(open(args.results_filename, "rb"))
+	mscpdbs_results = pickle.load(open(args.results_filename, "rb"), encoding='latin1')
 
 	results = [mscpdbs_results]
 
@@ -59,15 +59,15 @@ def main():
 
 	score, top_ten, top_one, count, top_rank_list, results_list, pdb_list = analyze( mscpdbs_results, mscpdbs, args )
 	for result in results_list:
-		print "%s\t%s" % (result[0], result[1])
+		print("%s\t%s" % (result[0], result[1]))
 
- 	top_rank_list = zip(*top_rank_list)[0]
+	top_rank_list = list(zip(*top_rank_list))[0]
 
 	ind = np.arange(len(top_rank_list))
 	width = 0.5
 
 	if args.results_filename2 != None:
-		mscpdbs_results2 = cPickle.load(open(args.results_filename2, "rb"))
+		mscpdbs_results2 = pickle.load(open(args.results_filename2, "rb"), encoding='latin1')
 		score2, top_ten2, top_one2, count2, top_rank_list2, results_list2, pdb_list2 = analyze( mscpdbs_results2, mscpdbs, args, randomize=args.randomize, trials=args.trials )
 
 		assert(len(pdb_list) == len(pdb_list2))
@@ -93,11 +93,11 @@ def main():
 			#ax1.plot(ind+width, np.array(trial_means)-np.array(trial_std), '--', color='b', alpha=0.5, ms=2)
 			ax1.fill_between(ind+width, np.array(trial_means)+np.array(trial_std), np.array(trial_means)-np.array(trial_std), color='b', alpha=0.1)
 		else:
-			top_rank_list2 = zip(*top_rank_list2)[0]
+			top_rank_list2 = list(zip(*top_rank_list2))[0]
 			ax1.plot(ind+width, top_rank_list2, 'o', color='b', alpha=0.5, ms=2)
 
 			for result in results_list2:
-				print "%s\t%s" % (result[0], result[1])
+				print("%s\t%s" % (result[0], result[1]))
 
 
 	if args.plot_filename != None:
@@ -106,7 +106,7 @@ def main():
 		#kdrew: this plots the top rank (prediction) of each pdb in benchmark
 		ax1.plot(ind+width, top_rank_list, '-o', color='g', alpha=0.5, ms=2)
 		ax1.set_xticks(ind+width)
-		stoich_list = [mscpdbs[x].values() for x in pdb_list]
+		stoich_list = [list(mscpdbs[x].values()) for x in pdb_list]
 		#ax1.set_xticklabels( ind, rotation=90, fontsize=6 )
 		ax1.set_xticklabels( stoich_list, rotation=90, fontsize=4 )
 		#plt.title("HS_ms2_elutions_msds_lenNormal_mean_ratio_true_ms_complete_pdbs_results")
@@ -117,16 +117,16 @@ def main():
 		plt.savefig(args.plot_filename)
 
 			
-	print "score: %s" % (score,)
-	print "top_ten: %s" % (top_ten,)
-	print "top_one: %s" % (top_one,)
-	print "count: %s" % (count,)
+	print("score: %s" % (score,))
+	print("top_ten: %s" % (top_ten,))
+	print("top_one: %s" % (top_one,))
+	print("count: %s" % (count,))
 
 	if args.results_filename2 != None:
-		print "score2: %s" % (score2,)
-		print "top_ten2: %s" % (top_ten2,)
-		print "top_one2: %s" % (top_one2,)
-		print "count2: %s" % (count2,)
+		print("score2: %s" % (score2,))
+		print("top_ten2: %s" % (top_ten2,))
+		print("top_one2: %s" % (top_one2,))
+		print("count2: %s" % (count2,))
 
 
 		i = 0
@@ -134,12 +134,12 @@ def main():
 			if min(mscpdbs_results[pdb_id][1]) > args.data_threshold:
 				#print "id: %s, Rank2: %s, Rank1: %s, %s" % (pdb_id, np.array(top_rank_list2[i]).mean(), top_rank_list[i], np.array(top_rank_list2[i]).mean() > top_rank_list[i])
 				if args.randomize:
-					print "id: %s, Rank2: %s, Rank1: %s, TrueStoich: %s " % (pdb_id, trial_means[i], top_rank_list[i], mscpdbs[pdb_id])
+					print("id: %s, Rank2: %s, Rank1: %s, TrueStoich: %s " % (pdb_id, trial_means[i], top_rank_list[i], mscpdbs[pdb_id]))
 				i+=1
 
 
 		z = (np.array(score2).mean() - score)/np.array(score2).std()
-		print "z(score): %s" % (z,)
+		print("z(score): %s" % (z,))
 
 #print mscpdbs_results
 #print mscpdbs
@@ -154,7 +154,7 @@ def analyze( results, mscpdbs, args, randomize=False, trials=1):
 	top_one_list = []
 	count_list = []
 
-	for i in xrange(trials):
+	for i in range(trials):
 
 		score = 0
 		top_ten = 0
@@ -163,7 +163,7 @@ def analyze( results, mscpdbs, args, randomize=False, trials=1):
 
 		tmp_top_rank_list = []
 		for pdb_id in results:
-			sorted_results = sorted(results[pdb_id][0].iteritems(), key=operator.itemgetter(1))
+			sorted_results = sorted(results[pdb_id][0].items(), key=operator.itemgetter(1))
 			if randomize:
 				#kdrew: shuffle results and resort
 				shuffle(sorted_results)
@@ -174,23 +174,23 @@ def analyze( results, mscpdbs, args, randomize=False, trials=1):
 			if min(results[pdb_id][1]) > args.data_threshold:
 
 				count += 1
-				print pdb_id
-				print "true: %s" % (mscpdbs[pdb_id],)
+				print(pdb_id)
+				print("true: %s" % (mscpdbs[pdb_id],))
 				#print "lengths: %s" % (pu.get_length_uniprot( mscpdbs[pdb_id].keys() ))
 
-				print "data_points: %s" % (results[pdb_id][1],)
-				print "mapping: %s" % (results[pdb_id][2],)
+				print("data_points: %s" % (results[pdb_id][1],))
+				print("mapping: %s" % (results[pdb_id][2],))
 				true_map = {}
 				for chain in results[pdb_id][2]:
 					true_map[chain] = mscpdbs[pdb_id][results[pdb_id][2][chain]]
 				
-				print "true_map: %s" % (true_map,)
+				print("true_map: %s" % (true_map,))
 				top_rank = None
 				for rank, pred in enumerate(sorted_results):
 					stoich = ast.literal_eval(pred[0])
 
 					#if rank < 10:
-					print "rank: %s, stoich: %s, score: %s" % (rank, stoich, pred[1])
+					print("rank: %s, stoich: %s, score: %s" % (rank, stoich, pred[1]))
 
 					matched_all = True
 					for comb in it.combinations(stoich.keys(),2):
@@ -206,7 +206,7 @@ def analyze( results, mscpdbs, args, randomize=False, trials=1):
 					else:
 						results_list.append((-1, rank))
 
-				print "top_rank: %s" % (top_rank,)
+				print("top_rank: %s" % (top_rank,))
 				score += top_rank
 				if top_rank < 10:
 					top_ten += 1
@@ -220,9 +220,9 @@ def analyze( results, mscpdbs, args, randomize=False, trials=1):
 
 		if len(top_rank_list) == 0:
 			#top_rank_list = tmp_top_rank_list
-			top_rank_list = map(list,zip(tmp_top_rank_list))
+			top_rank_list = list(map(list,zip(tmp_top_rank_list)))
 		else:
-			for j in xrange(len(top_rank_list)):
+			for j in range(len(top_rank_list)):
 				top_rank_list[j].append(tmp_top_rank_list[j])
 
 		score_list.append(score)

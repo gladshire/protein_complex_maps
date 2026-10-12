@@ -10,7 +10,7 @@ import pandas
 
 class PurificationRecipeTest(unittest.TestCase):
 
-	def setUp(self,):
+        def setUp(self,):
 
             self.sample_pickle_filenames = ["./test_data.p", "./test_data2.p"]
 
@@ -20,7 +20,7 @@ class PurificationRecipeTest(unittest.TestCase):
             percent_threshold = 0.9
             self.pr_obj = pr.PurificationRecipe( self.sample_pickle_filenames, proteins, percent_threshold )
 
-            print "in testCreateObject"
+            print("in testCreateObject")
 
             #kdrew: this is test_data.p data frame
             #ENSG00000008018  ENSG00000010438  ENSG00000013275
@@ -29,8 +29,8 @@ class PurificationRecipeTest(unittest.TestCase):
             #C103              300                0               90
             
             #kdrew: testing filename access
-            assert(self.pr_obj.df_dict.keys()[1] == "./test_data.p")
-            assert(self.pr_obj.df_dict.keys()[0] == "./test_data2.p")
+            assert(list(self.pr_obj.df_dict.keys())[0] == "./test_data.p")
+            assert(list(self.pr_obj.df_dict.keys())[1] == "./test_data2.p")
 
             #kdrew: testing normalized data values, normalized so fractions sum to 1.0
             value = self.pr_obj.df_dict['./test_data.p']['ENSG00000010438'].values[0]
@@ -41,14 +41,14 @@ class PurificationRecipeTest(unittest.TestCase):
             np.testing.assert_almost_equal( value3, 0.0 )
 
             passed_fractions = self.pr_obj.df_index_dict['./test_data.p']
-            print passed_fractions
+            print(passed_fractions)
             #kdrew: only C101 has entries for both proteins, other fractions have 0.0 values for one or the other or both
             assert(passed_fractions[0] == 'C101')
             assert(len(passed_fractions) == 1)
 
         def testSingleProtein(self,):
 
-            print "in testSingleProtein"
+            print("in testSingleProtein")
                 
             proteins = ['ENSG00000010438']
             percent_threshold = 0.9
@@ -67,7 +67,7 @@ class PurificationRecipeTest(unittest.TestCase):
 
         def testMultiProtein(self,):
 
-            print "in testDoubleProtein"
+            print("in testDoubleProtein")
 
             proteins = ['ENSG00000010438','ENSG00000013275']
             percent_threshold = 0.9
@@ -119,6 +119,6 @@ class PurificationRecipeTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-	unittest.main()
+        unittest.main()
 
 

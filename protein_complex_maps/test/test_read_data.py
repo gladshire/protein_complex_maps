@@ -13,21 +13,21 @@ class ReadDataTest(unittest.TestCase):
 	def setUp(self,):
 
 		sample_filename = "./test_data.txt"
-		sample_file = open(sample_filename, 'rb')
+		sample_file = open(sample_filename, 'r')
 		self.data_matrix, self.name_list, self.fraction_list = rd.read_datafile(sample_file)
 
-		print self.data_matrix
+		print(self.data_matrix)
 
 		sample_filename2 = "./test_data2.txt"
-		sample_file2 = open(sample_filename2, 'rb')
+		sample_file2 = open(sample_filename2, 'r')
 		self.data_matrix2, self.name_list2, self.fraction_list2 = rd.read_datafile(sample_file2)
 
-		self.sample_file = open(sample_filename, 'rb')
-		self.sample_file2 = open(sample_filename2, 'rb')
-		print self.data_matrix2
+		self.sample_file = open(sample_filename, 'r')
+		self.sample_file2 = open(sample_filename2, 'r')
+		print(self.data_matrix2)
 
 		self.sample_Ce_filename = "./test_Ce_data.txt"
-		self.sample_Ce_file = open(self.sample_Ce_filename,'rb')
+		self.sample_Ce_file = open(self.sample_Ce_filename,'r')
 
 	def testRead(self,):
 		
@@ -45,11 +45,11 @@ class ReadDataTest(unittest.TestCase):
 		#np.testing.assert_almost_equal( score, 0.000343732988528)
 
 	def testConcat(self,):
-		print "testConcat"
+		print("testConcat")
 		c_dmat, c_nlist = rd.concat_data_matrix(self.data_matrix, self.name_list, self.data_matrix2, self.name_list2)
 
-		print c_dmat
-		print c_nlist
+		print(c_dmat)
+		print(c_nlist)
 
 		index1 = c_nlist.index('ENSG00000072110')
 		assert(c_dmat[np.ix_([index1],[0])] == 25.0)
@@ -85,9 +85,9 @@ class ReadDataTest(unittest.TestCase):
 		msds.load_file(self.sample_Ce_file, header=True, ortholog_map=ortholog_map)
 
 		#msds.map_ids_by_genename(organism="Caenorhabditis+elegans")
-		print " ortholog data cat "
+		print(" ortholog data cat ")
 		dmat = msds.get_data_matrix()
-		print dmat
+		print(dmat)
 
 		#kdrew: test a few positions
 		assert( dmat[1,1] == 10.0 ) #no ortholog in new
@@ -96,7 +96,7 @@ class ReadDataTest(unittest.TestCase):
 		assert( dmat[2,10] == 40.0 ) # ortholog in both 
 		assert( dmat[0,8] == 2.0 ) #no ortholog in original
 
-		print msds.get_id_dict()
+		print(msds.get_id_dict())
 
 
 	def testMsDataSet(self,):
@@ -105,8 +105,8 @@ class ReadDataTest(unittest.TestCase):
 		msds.load_file(self.sample_file2, header=True)
 
 		fulldm = msds.get_data_matrix()
-		print "get_data_matrix"
-		print fulldm
+		print("get_data_matrix")
+		print(fulldm)
 
 		#kdrew: removed this functionality
 		#partdm = msds.get_data_matrix(names=["ENSG00000072110","ENSG00000075914","ENSG00000087191"])
@@ -116,9 +116,9 @@ class ReadDataTest(unittest.TestCase):
 
 		msds.map_ids("ENSEMBL_ID", "ACC")
 		mapped_ids = msds.get_id_dict()
-                print "mapped_ids %s" % (mapped_ids,)
+		print("mapped_ids %s" % (mapped_ids,))
 		assert(mapped_ids["Q15024"] == 9)
-                #kdrew: same genes but now taking the first in the last rather than last so the primary ids are changed
+		#kdrew: same genes but now taking the first in the last rather than last so the primary ids are changed
 		#assert(mapped_ids["G3V380"] == 11)
 		assert(mapped_ids["G3V2E8"] == 11)
 		#assert(mapped_ids["J3QRR3"] == 6)       
@@ -135,15 +135,15 @@ class ReadDataTest(unittest.TestCase):
 		msds.load_file(self.sample_file2, header=True)
 
 		fulldm = msds.get_data_matrix()
-		print "testing Reorder"
-		print fulldm
+		print("testing Reorder")
+		print(fulldm)
 
 		reordered_dm, new_map = msds.reordered_data_matrix([5,6,2], [7,8,3])
 
-		print reordered_dm
+		print(reordered_dm)
 
-		print "name2index: %s" % msds.get_name2index()
-		print "new_map: %s" % new_map
+		print("name2index: %s" % msds.get_name2index())
+		print("new_map: %s" % new_map)
 
 
 		assert msds.get_name2index()[5] == new_map[0]

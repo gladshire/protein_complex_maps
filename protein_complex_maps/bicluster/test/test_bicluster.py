@@ -78,10 +78,10 @@ class BiclusterTest(unittest.TestCase):
 		assert( rand_cols == [2,4] )
 
 	def testScale(self,):
-		print self.bicluster2
-		print self.data_matrix
+		print(self.bicluster2)
+		print(self.data_matrix)
 		dmat = self.bicluster2.scale(self.data_matrix,100)
-		print dmat
+		print(dmat)
 
 		assert( dmat[0,0] == 0 )
 		assert( dmat[1,0] == 500 )

@@ -74,7 +74,7 @@ def main():
 
 	args = parser.parse_args()
 
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 
 	if args.proteins != None:
 		data_set, new_id_map = msds.get_subdata_matrix(args.proteins, ignoreNonExistingIds=args.ignore_missing) 
@@ -89,21 +89,21 @@ def main():
 			data_set, new_id_map = msds.get_subdata_matrix(args.proteins, ignoreNonExistingIds=args.ignore_missing) 
 
 
-		except MySQLdb.Error, e:
-			print e
+		except MySQLdb.Error as e:
+			print(e)
 
 	else:
 		data_set = msds.get_data_matrix()
 		new_id_map = msds.get_name2index()
 
 	if args.genenames:
-		print "new_id_map.values: %s" % (new_id_map.values(),)
-		genename_map = pu.get_genenames_uniprot( new_id_map.values() )
-		print new_id_map
-		print genename_map
+		print("new_id_map.values: %s" % (list(new_id_map.values()),))
+		genename_map = pu.get_genenames_uniprot( list(new_id_map.values()) )
+		print(new_id_map)
+		print(genename_map)
 		gene_id_map = dict()
-		for i in xrange(len(data_set)):
-			print i
+		for i in range(len(data_set)):
+			print(i)
 			#print genename_map[new_id_map[i]]
 			#kdrew: sometimes no genename is returned for certain ids, default to original id
 			try:
@@ -145,13 +145,13 @@ def main():
 		D_flat = np.array(D.reshape(-1)).flatten()
 		pD_flat = np.array(pD.reshape(-1)).flatten()
 		corr, pval = pearsonr(D_flat, pD_flat)
-		print "pearsonr: %s pval: %s" % (corr, pval,)
+		print("pearsonr: %s pval: %s" % (corr, pval,))
 		corr, pval = spearmanr(D_flat, pD_flat)
-		print "spearmanr: %s pval: %s" % (corr, pval,)
+		print("spearmanr: %s pval: %s" % (corr, pval,))
 		D_list = [[x] for x in D_flat.tolist()]
 		pD_list = [[x] for x in pD_flat.tolist()]
 		minfo= ee.mi(D_list, pD_list)
-		print "mutual information: %s" % (minfo, )
+		print("mutual information: %s" % (minfo, ))
 
 #kdrew: both average_cnt and sample_module need to be set for average correlation with sample noise to be computed
 #kdrew: consider moving correlation to another module
@@ -165,8 +165,8 @@ def runCluster(data_set, average_cnt=0, sample_module=None, scale=None, cluster_
 	#kdrew: create distance matrix the size of proteins v proteins
 	D = scipy.zeros([data_set.shape[0], data_set.shape[0]])
 
-	for i in xrange(data_set.shape[0]):
-		for j in xrange(data_set.shape[0]):
+	for i in range(data_set.shape[0]):
+		for j in range(data_set.shape[0]):
 			if dependence_metric == "pearson":
 				if average_cnt > 0 and sample_module != None:
 					corr_sum = 0.0
@@ -231,8 +231,8 @@ def plotJustDendrogram(Y, plot_filename, new_id_map, circle_annotate=None, title
 	#pylab.title(title)
 	dendrogram = sch.dendrogram(Y, orientation='right')
 	#dendrogram = sch.dendrogram( Y )
-	print dendrogram['leaves']
-	print [new_id_map[z] for z in dendrogram['leaves']]
+	print(dendrogram['leaves'])
+	print([new_id_map[z] for z in dendrogram['leaves']])
 
 	#kdrew: testing purposes
 	#circle_annotate = range(len(dendrogram['icoord']))
@@ -240,8 +240,8 @@ def plotJustDendrogram(Y, plot_filename, new_id_map, circle_annotate=None, title
 		for j, k in enumerate(zip(dendrogram['icoord'], dendrogram['dcoord'])):
 			i = k[0]
 			d = k[1]
-			print j
-			print d[1]
+			print(j)
+			print(d[1])
 			cl_id = Y[:,2].tolist().index(d[1])
 			x = 0.5 * sum(i[1:3])
 			y = d[1]
@@ -260,7 +260,7 @@ def plotDendrogramProfile(data_set, Y, plot_filename, new_id_map, total_occupanc
 	if total_occupancy:
 		col_sum = np.sum(data_set,0)
 		shared_cols =  np.array(np.nonzero(col_sum)[1]).reshape(-1).tolist()
-		print shared_cols
+		print(shared_cols)
 		data_set = data_set[np.ix_(range(0,data_set.shape[0]), shared_cols)]
 
 	fig = pylab.figure(figsize=(14,14))
@@ -268,12 +268,12 @@ def plotDendrogramProfile(data_set, Y, plot_filename, new_id_map, total_occupanc
 	ax1 = pylab.subplot2grid((len(new_id_map),14),(0,0), rowspan=len(new_id_map), colspan=3)
 	pylab.title(title)
 	dendrogram = sch.dendrogram(Y, orientation='right')
-	print dendrogram['leaves']
-	print [new_id_map[z] for z in dendrogram['leaves']]
+	print(dendrogram['leaves'])
+	print([new_id_map[z] for z in dendrogram['leaves']])
 	ax1.set_yticklabels([new_id_map[z] for z in dendrogram['leaves']])
 
 	data_subplots = []
-	for i in xrange(len(dendrogram['leaves'])):
+	for i in range(len(dendrogram['leaves'])):
 		ax = pylab.subplot2grid((len(new_id_map),14),(i,4), colspan=10)
 		data_subplots.append(ax)
 
@@ -290,7 +290,7 @@ def plotDendrogramProfile(data_set, Y, plot_filename, new_id_map, total_occupanc
 		#print data_array_cols
 		#print data_array_cols[data_array_cols != 0]
 
-		data_subplots[j].bar(np.arange(len(data_array_cols)), map(float,data_array_cols), align='center', facecolor=barcolor, alpha=0.5 )
+		data_subplots[j].bar(np.arange(len(data_array_cols)), list(map(float,data_array_cols)), align='center', facecolor=barcolor, alpha=0.5 )
 		data_subplots[j].set_xlim(0, len(data_array_cols))
 		data_subplots[j].axes.set_yticks([])
 		#kdrew: only show tick marks on bottom profile 
@@ -310,11 +310,11 @@ def plotDendrogram(Y, Y2, D, plot_filename, new_id_map, title=""):
 	fig = pylab.figure(figsize=(8,8))
 	ax1 = fig.add_axes([0.09, 0.1, 0.11, 0.6])
 	dendrogram = sch.dendrogram(Y, orientation='right')
-	print dendrogram['leaves']
-	print [new_id_map[z] for z in dendrogram['leaves']]
+	print(dendrogram['leaves'])
+	print([new_id_map[z] for z in dendrogram['leaves']])
 	ax1.set_yticklabels([new_id_map[z] for z in dendrogram['leaves']])
 
-	print new_id_map
+	print(new_id_map)
 
 	ax2 = fig.add_axes([0.3, 0.78, 0.6, 0.2])
 	dendrogram2 = sch.dendrogram(Y2)
@@ -335,7 +335,7 @@ def plotDendrogram(Y, Y2, D, plot_filename, new_id_map, title=""):
 	pylab.colorbar(im, cax=axcolor)
 	
 
-	print dendrogram
+	print(dendrogram)
 
 
 	#fig.show()

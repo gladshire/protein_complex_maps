@@ -55,7 +55,7 @@ def main():
 
 	args = parser.parse_args()
 
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 
 	if args.proteins != None:
 		data_set, new_id_map = msds.get_subdata_matrix(args.proteins, ignoreNonExistingIds=args.ignore_missing) 
@@ -70,8 +70,8 @@ def main():
 			data_set, new_id_map = msds.get_subdata_matrix(args.proteins, ignoreNonExistingIds=args.ignore_missing) 
 
 
-		except MySQLdb.Error, e:
-			print e
+		except MySQLdb.Error as e:
+			print(e)
 
 	else:
 		data_set = msds.get_data_matrix()
@@ -106,8 +106,8 @@ def compute_cluster_zscores( proteins, data_set, new_id_map, msds, cluster_metho
 	#print new_acc_mapping 
 
 	zscores, distances = pic.interactions_over_random( new_acc_mapping, Y ) 
-	print zscores
-	print distances
+	print(zscores)
+	print(distances)
 
 	zscore_list = []
 	distance_list = []

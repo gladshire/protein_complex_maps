@@ -49,11 +49,11 @@ def main():
     
     #kdrew: read in complexes
     complexes = []
-    with open(args.complex_filename, 'rb') as complex_file:
+    with open(args.complex_filename, 'r') as complex_file:
         for complex_line in complex_file.readlines():
             complexes.append(complex_line.split())
 
-    print complexes
+    print(complexes)
 
     #kdrew: create set of ids in all complexes
     complex_ids = set([item for sublist in complexes for item in sublist])
@@ -67,19 +67,19 @@ def main():
         pickle.dump(complex_id_uniprot_map, open('./complex_uniprot_map.p','wb'))
 
     else:
-        complex_id_uniprot_map = pickle.load(open(args.map_pickle, 'rb'))
+        complex_id_uniprot_map = pickle.load(open(args.map_pickle, 'rb'), encoding='latin1')
     
 
     #kdrew: flatten dictionary by taking for first entry in list to be value
     complex_id_uniprot_single_map = {key : complex_id_uniprot_map[key][0] for key in complex_id_uniprot_map if len(complex_id_uniprot_map[key]) > 0}
-    print complex_id_uniprot_map
+    print(complex_id_uniprot_map)
 
     #kdrew: sec data (fractions 7-40) keyed on uniprot
     sec_data = dict()
 
     #kdrew: readin sec data
     header_count = 0
-    with open(args.sec_filename, 'rb') as sec_file:
+    with open(args.sec_filename, 'r') as sec_file:
         reader = csv.reader(sec_file)
         for row in reader:
             #kdrew: file has two header lines
@@ -87,7 +87,7 @@ def main():
                 header_count+=1
             else:
                 #kdrew: uniprot id is in entry 0, data is in entries 1-35, remaining data is stdev + misc
-                sec_data[ row[0] ] = map( float, row[SEC_START_COL:SEC_END_COL] )
+                sec_data[ row[0] ] = list(map( float, row[SEC_START_COL:SEC_END_COL] ))
 
     #print sec_data
 
@@ -95,7 +95,7 @@ def main():
     complex_sec_data = dict()
     complex_sec_ids = dict()
     for c_id in complex_ids:
-        print c_id 
+        print(c_id) 
         for uni_id in complex_id_uniprot_map[c_id]:
             try:
                 complex_sec_data[c_id] = sec_data[uni_id]
@@ -105,22 +105,22 @@ def main():
                 continue
 
     if args.seq_pickle == None:
-        complex_seq_map = pu.get_sequences_uniprot(complex_id_uniprot_single_map.values())
+        complex_seq_map = pu.get_sequences_uniprot(list(complex_id_uniprot_single_map.values()))
         pickle.dump(complex_seq_map, open('./complex_uniprot_seq.p','wb'))
 
     else:
-        complex_seq_map = pickle.load(open(args.seq_pickle, 'rb'))
+        complex_seq_map = pickle.load(open(args.seq_pickle, 'rb'), encoding='latin1')
     
-    print complex_seq_map
+    print(complex_seq_map)
 
     
     #for seq_id in complex_seq_map:
     #    print complex_seq_map[seq_id]
     #    print "%s : %s" % (seq_id, su.molecular_weight(complex_seq_map[seq_id], seq_type="protein"))
 
-    print len(complex_sec_data)
-    print len(complex_ids)
-    print len(complex_seq_map)
+    print(len(complex_sec_data))
+    print(len(complex_ids))
+    print(len(complex_seq_map))
 
     #kdrew: calculate molecular weight for total complex, index is same for complexes and mw list
     complex_mw = []
@@ -130,11 +130,11 @@ def main():
             try:
                 weight += su.molecular_weight(complex_seq_map[complex_id_uniprot_single_map[c_id]], seq_type="protein")
             except KeyError:
-                print "Missing entry, ignore complex"
+                print("Missing entry, ignore complex")
                 weight = None
                 break
 
-        print "%s : %s" % (cmplx, weight)
+        print("%s : %s" % (cmplx, weight))
         complex_mw.append(weight)
 
 
@@ -157,22 +157,22 @@ def main():
         #kdrew: average fraction index weighted by value in sec 
         complex_sec_weight_fraction.append(np.average(range(SEC_START_COL,SEC_END_COL), weights=complex_sec_array))   
 
-    print complex_sec_average
+    print(complex_sec_average)
     complex_sec_average_array = np.array(complex_sec_average)
 
     complex_mw_array = np.array(complex_mw)
     complex_sec_weight_fraction_array = np.array(complex_sec_weight_fraction)
     mw_sort_idx = np.argsort(complex_mw_array)
 
-    print complex_sec_average_array[mw_sort_idx]
-    print complex_mw_array[mw_sort_idx]
-    print complex_sec_weight_fraction_array[mw_sort_idx]
+    print(complex_sec_average_array[mw_sort_idx])
+    print(complex_mw_array[mw_sort_idx])
+    print(complex_sec_weight_fraction_array[mw_sort_idx])
 
     nonNone_index = [i for i in range(len(complex_mw_array)) if complex_mw_array[i] != None and ~np.isnan(complex_sec_weight_fraction_array[i]) ]
-    print nonNone_index
+    print(nonNone_index)
 
-    print s.spearmanr(complex_mw_array, complex_sec_weight_fraction_array)
-    print s.spearmanr(complex_mw_array[nonNone_index], complex_sec_weight_fraction_array[nonNone_index])
+    print(s.spearmanr(complex_mw_array, complex_sec_weight_fraction_array))
+    print(s.spearmanr(complex_mw_array[nonNone_index], complex_sec_weight_fraction_array[nonNone_index]))
 
     complex_mw_array_woNone = complex_mw_array[nonNone_index]
     complex_sec_average_array_woNone = complex_sec_average_array[nonNone_index]
@@ -198,12 +198,12 @@ def main():
     medium_mw_indices = [i for i in nonNone_index if complex_mw_array[i] >= medium_mw[0] and complex_mw_array[i] < medium_mw[1]]
     large_mw_indices = [i for i in nonNone_index if complex_mw_array[i] >= large_mw[0] and complex_mw_array[i] < large_mw[1]]
 
-    print "small: %s" % (len(small_mw_indices))
-    print "medium: %s" % (len(medium_mw_indices))
-    print "large: %s" % (len(large_mw_indices))
+    print("small: %s" % (len(small_mw_indices)))
+    print("medium: %s" % (len(medium_mw_indices)))
+    print("large: %s" % (len(large_mw_indices)))
     
-    print small_mw_indices
-    print complex_sec_average_array[small_mw_indices]
+    print(small_mw_indices)
+    print(complex_sec_average_array[small_mw_indices])
 
     #kdrew: combine binned complexes (average arrays)
     small_average_array = np.average(complex_sec_average_array[small_mw_indices], axis=0)

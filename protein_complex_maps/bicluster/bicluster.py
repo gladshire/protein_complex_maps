@@ -20,12 +20,12 @@ class Bicluster(object):
 	def __str__(self,):
 		return "Bicluster: \nrows: %s \ncolumns: %s" % (self.__rows, self.__cols)
  
- 	def print_submatrix(self, data_matrix):
+	def print_submatrix(self, data_matrix):
 		submat = self.get_submatrix(data_matrix)
-		print self.columns()
+		print(self.columns())
 		rows = self.rows()
 		for i, row in enumerate(submat):
-			print "%s : %s " % (rows[i], np.round(np.array(row)[0],5).tolist() )
+			print("%s : %s " % (rows[i], np.round(np.array(row)[0],5).tolist() ))
 
 	def add_row(self, row_index):
 		self.__rows.add(row_index)
@@ -102,7 +102,7 @@ class Bicluster(object):
 		if len(self.__rows) > len(outside_rows):
 			random_sample_size = len(outside_rows)
 		#kdrew: return a list of random rows the size of the bicluster rows
-		random_rows = self.random_module.sample( outside_rows, random_sample_size )
+		random_rows = self.random_module.sample( list(outside_rows), random_sample_size )
 		#print random_rows
 		random_rows.sort()
 		return random_rows
@@ -118,7 +118,7 @@ class Bicluster(object):
 		if len(self.__cols) > len(outside_cols):
 			random_sample_size = len(outside_cols)
 		#kdrew: return a list of random cols the size of the bicluster cols
-		random_cols = self.random_module.sample( outside_cols, random_sample_size )
+		random_cols = self.random_module.sample( list(outside_cols), random_sample_size )
 		#print random_cols
 		random_cols.sort()
 		return random_cols

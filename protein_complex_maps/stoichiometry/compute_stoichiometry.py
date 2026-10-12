@@ -1,5 +1,5 @@
 import glob
-import cPickle
+import pickle
 import pickle
 import argparse
 
@@ -26,13 +26,13 @@ def main():
 	args = parser.parse_args()
 
 	#kdrew: pickle comes from running protein_complex_maps.stoichiometry.benchmark.normalize_benchmark_msds.py with length_normalize = True
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
-	print msds.get_id_dict()
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
+	print(msds.get_id_dict())
 
 
 	#kdrew: read in stoichiometries, file is from pdb website (slightly massaged)
 	#filename = "/home/kdrew/scripts/protein_complex_maps/protein_complex_maps/stoichiometry/benchmark/pdb_stoichiometry_list.txt"
-	sample_file = open(args.stoichiometry_filename, 'rb')
+	sample_file = open(args.stoichiometry_filename, 'r')
 	s_set = st.Stoichiometries()
 	s_set.read_stoichiometries(sample_file)
 
@@ -40,7 +40,7 @@ def main():
 	msds_id_set = set(msds_id_dict.keys())
 	results_dict = dict()
 
-	complex_file = open(args.complex_filename, 'rb')
+	complex_file = open(args.complex_filename, 'r')
 	complex_list = []
 	for i in complex_file.readlines():
 		complex_list.append(i.split())
@@ -49,17 +49,17 @@ def main():
 
 	for prot_ids in complex_list:
 		if msds_id_set >= set(prot_ids):
-			print "complex ids are in msds"
+			print("complex ids are in msds")
 			results, num_dpts, prot_ids_map, single_class_flag = rs.relative_stoichiometry( msds, prot_ids, s_set, prior_type=args.prior_type )
-			print results
+			print(results)
 			if single_class_flag:
 				results_dict[prot_ids.__str__()] = (results, num_dpts, prot_ids_map)
 			else:
-				print "GMM did not converge to single class on all cases, single_class_flag == False"
+				print("GMM did not converge to single class on all cases, single_class_flag == False")
 		else:
-			print "complex ids are NOT in msds"
+			print("complex ids are NOT in msds")
 
-	cPickle.dump(results_dict, open(args.output_filename, "wb"))
+	pickle.dump(results_dict, open(args.output_filename, "wb"))
 
 if __name__ == "__main__":
 	main()

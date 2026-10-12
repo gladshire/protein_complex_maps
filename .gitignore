@@ -1,2 +1,7 @@
 *.pyc
 *.swp
+*.pdf
+*.csv
+*.tsv
+*.p
+

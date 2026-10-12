@@ -49,8 +49,8 @@ class BiclusterGenerator(object):
 		random_number_of_rows = 1
 		random_number_of_columns = 1
 
-		random_rows = self.random_module.choice(xrange(0,total_rows), random_number_of_rows, replace=False)
-		random_columns = self.random_module.choice(xrange(0,total_columns), random_number_of_columns, replace=False)
+		random_rows = self.random_module.choice(range(0,total_rows), random_number_of_rows, replace=False)
+		random_columns = self.random_module.choice(range(0,total_columns), random_number_of_columns, replace=False)
 
 		random_seeded_bicluster = bc.Bicluster(rows = random_rows, cols = random_columns, random_module=self.random_module)
 
@@ -80,7 +80,7 @@ class BiclusterGenerator(object):
 		#print numRows, numCols
 
 		#kdrew: probably should test for some convergence
-		for i in xrange( 1, self.iterations ):
+		for i in range( 1, self.iterations ):
 			logging.debug("iteration: %s" % (i,))
 
 			#kdrew: randomly pick row or column (inside or outside of bicluster)

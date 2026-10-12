@@ -12,7 +12,7 @@ iset.get_interactions_from_db(['O75832', 'Q06323', 'Q9UL46'])
 iset.get_interactions_from_db(['O75832', 'Q06323', 'Q9UL46'])
 
 total_weight = iset.get_total_weight(['Q06323', 'Q9UL46'])
-print total_weight
+print(total_weight)
 assert( total_weight == 6.98 )
 
-print iset.interactions
+print(iset.interactions)

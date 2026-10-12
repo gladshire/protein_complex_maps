@@ -8,12 +8,12 @@ complex_file = '/home/kdrew/data/corum/allComplexes.csv'
 #complex_file = '/home/kdrew/data/corum/fewComplexes.csv'
 
 #msds = pickle.load( open( '/home/kdrew/scripts/protein_complex_maps/protein_complex_maps/util/HS_ms2_elutions_msds_peptide_normalized_ids_mapped.p', "rb" ) )
-msds = pickle.load( open( '/home/kdrew/data/protein_complex_maps/msds_pickles/HS_ms2_elutions_msds_peptide_normalized_ids_mapped.p', "rb" ) )
+msds = pickle.load( open( '/home/kdrew/data/protein_complex_maps/msds_pickles/HS_ms2_elutions_msds_peptide_normalized_ids_mapped.p', "rb" ), encoding='latin1' )
 
 complexes_dict = {}
 
 #kdrew: read in complexes from corum
-with open(complex_file, 'rb') as csvfile:
+with open(complex_file, 'r') as csvfile:
 	complexes = csv.reader(csvfile, delimiter=';')
 	for row in complexes:
 		if row[3] == "Human" and row[4] != '':
@@ -26,7 +26,7 @@ bicluster_dict = {}
 
 #kdrew: for every complex find some biclusters
 for complex1 in complexes_dict:
-	print "complex id: %s" % (complex1,)
+	print("complex id: %s" % (complex1,))
 
 	data_set, new_id_map = msds.get_subdata_matrix(complexes_dict[complex1], ignoreNonExistingIds=True)
 
@@ -47,7 +47,7 @@ for complex1 in complexes_dict:
 for complex1 in bicluster_dict:
 	bicluster_dict[complex1].sort(key = lambda tup: tup[1])
 	for bicluster in bicluster_dict[complex1]:
-		print "complex: %s zscore: %s genes: %s" % (complex1, bicluster[1], ' '.join(bicluster[0]))
+		print("complex: %s zscore: %s genes: %s" % (complex1, bicluster[1], ' '.join(bicluster[0])))
 
 
 

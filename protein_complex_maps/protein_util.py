@@ -1,12 +1,12 @@
 
 #kdrew: this file is for utilities for querying features about proteins
 
-import urllib, urllib2 
+import urllib.request, urllib.parse, urllib.error, io 
 import MySQLdb
 import difflib
 import Bio.Seq as Seq
 import Bio.SeqRecord as SeqRecord
-import Bio.Alphabet as ba
+#import Bio.Alphabet as ba
 
 ACC_QUERY_LENGTH = 100
 FUZZY_MATCH_THRESHOLD = 0.25
@@ -28,10 +28,10 @@ def get_all_orthologs( prot_ids, version="_v8", database='inparanoid', score_thr
 	query = "show tables"
 	cursor.execute(query)
 	for tableresult in cursor.fetchall():
-		print tableresult
+		print(tableresult)
 		tablename = tableresult[0]
 		omap = get_ortholog_by_table( prot_ids, tablename, database, score_threshold, species=None)
-		print omap
+		print(omap)
 		for key in omap:
 			try:
 				ortholog_map[key].append(omap[key])
@@ -54,7 +54,7 @@ def get_ortholog( prot_ids, species1, species2=None, version="_v8", database='in
 			tablename = tableresult[0]
 			if species1 in tablename:
 				omap = get_ortholog_by_table( prot_ids, tablename, database, score_threshold, species=species1 ) 
-				ortholog_map = dict( ortholog_map.items() + omap.items() )
+				ortholog_map = dict( list(ortholog_map.items()) + list(omap.items()) )
 
 		missing_in_orthologmap = set()
 		for protid in prot_ids:
@@ -62,14 +62,14 @@ def get_ortholog( prot_ids, species1, species2=None, version="_v8", database='in
 				missing_in_orthologmap.add(protid)
 
 		if 0 < len(missing_in_orthologmap):
-			print "Do fuzzy match, missing: %s" % (missing_in_orthologmap,)
+			print("Do fuzzy match, missing: %s" % (missing_in_orthologmap,))
 			ids2species = get_organism_uniprot(list(missing_in_orthologmap))
 			for id1 in ids2species:
 				#kdrew: check to see if the passed in species is the same as id's species
 				#kdrew: have to do a fuzzy match because what gets returned by uniprot is the full name 
 				#kdrew: and the inparanoid name is an abbreviation ( I guess this is why they invented taxids )
 				#kdrew: maybe all of this can be avoided if I create a Hsapiens_Hsapiens table in inparanoid
-				print ids2species[id1], species1
+				print(ids2species[id1], species1)
 				if difflib.SequenceMatcher(None, species1,ids2species[id1]).ratio() > FUZZY_MATCH_THRESHOLD:
 					ortholog_map[id1] = id1
 
@@ -111,7 +111,7 @@ def get_ortholog_by_table( prot_ids, tablename, database='inparanoid', score_thr
 	if species != None:
 		query_add = " and a2.species = '%s' " % (species[0]+'.'+species[1:],)
 		query = query + query_add
-        #print len(prot_ids)
+	#print len(prot_ids)
 	#print query
 
 	cursor.execute(query, tuple(prot_ids))
@@ -142,6 +142,7 @@ def get_sequences_uniprot( protein_ids, seqrecord=False ):
 			if seq_map[key] != None:
 				s = Seq.Seq(seq_map[key], ba.generic_protein)
 				sr = SeqRecord.SeqRecord(s, id=key, description=organism_map[key])
+				sr.annotations['molecule_type'] = 'protein'
 				#sr = SeqRecord.SeqRecord(Seq.Seq(seq_map[key], ba.generic_protein), id=key, description=organism_map[key])
 				#print sr
 				return_seq_map[key] = sr
@@ -157,27 +158,27 @@ def get_from_uniprot( protein_ids, keyword ):
 	for prot in protein_ids:
 		cleaned_protein_ids.append(prot.split('-')[0])
 
-        FIELD_MAP = {"length": "length", "organism": "organism_name", "genes(PREFERRED)": "gene_primary", "gene": "gene_primary", "id": "id"}
+	FIELD_MAP = {"length": "length", "organism": "organism_name", "genes(PREFERRED)": "gene_primary", "gene": "gene_primary", "id": "id"}
 	#protein_ids = protein_ids + cleaned_protein_ids
-        field = FIELD_MAP.get(keyword, keyword)
+	field = FIELD_MAP.get(keyword, keyword)
 	#kdrew: break up query into chunks so as not to get 414 error
-	for i in xrange( (len(protein_ids)/ACC_QUERY_LENGTH)+1 ):
+	for i in range( (len(protein_ids)//ACC_QUERY_LENGTH)+1 ):
 		start_splice = i*ACC_QUERY_LENGTH
 		stop_splice = (i+1)*ACC_QUERY_LENGTH
-                chunk = protein_ids[i:i + ACC_QUERY_LENGTH]
-                query = "+OR+".join("accession:%s" %a for a in chunk)
+		chunk = protein_ids[i:i + ACC_QUERY_LENGTH]
+		query = "+OR+".join("accession:%s" %a for a in chunk)
 		report_query = "http://rest.uniprot.org/uniprotkb/stream?format=tsv&fields=accession,%s&query=%s" % (field, query)
-		print report_query
-		f = urllib2.urlopen(report_query)
+		print(report_query)
+		f = io.TextIOWrapper(urllib.request.urlopen(report_query), encoding='utf-8')
 		for line in f.readlines():
-                        cols = line.rstrip("\n").split("\t")
-                        acc = cols[0]
-                        if acc not in protein_ids:
-                                continue
-                        val = cols[1] if len(cols) > 1 and cols[1] else None
-                        if keyword == "length" and val is not None:
-                                val = int(val)
-                        return_dict[acc] = val
+			cols = line.rstrip("\n").split("\t")
+			acc = cols[0]
+			if acc not in protein_ids:
+				continue
+			val = cols[1] if len(cols) > 1 and cols[1] else None
+			if keyword == "length" and val is not None:
+				val = int(val)
+			return_dict[acc] = val
 
 
 	return return_dict
@@ -192,15 +193,15 @@ def get_from_uniprot_by_genename( gene_ids, organism="", gene_prefix="gene_exact
 		reviewed_str = "+and+reviewed:yes"
 
 	#kdrew: break up query into chunks so as not to get 414 error
-	for i in xrange( (len(gene_ids)/ACC_QUERY_LENGTH)+1 ):
+	for i in range( (len(gene_ids)//ACC_QUERY_LENGTH)+1 ):
 		start_splice = i*ACC_QUERY_LENGTH
 		stop_splice = (i+1)*ACC_QUERY_LENGTH                                                                                 
 		genes_formatted = ["%s:%s" % (gene_prefix, id1,) for id1 in gene_ids[start_splice:stop_splice]]
 		report_query = "http://www.uniprot.org/uniprot/?format=tab&query=organism:(%s)+and+(%s)%s" % (organism, "+or+".join(genes_formatted), reviewed_str )
-		print report_query
-		f = urllib2.urlopen(report_query)
+		print(report_query)
+		f = io.TextIOWrapper(urllib.request.urlopen(report_query), encoding='utf-8')
 		for line in f.readlines():
-			print line
+			print(line)
 			#kdrew: the returned line has a bunch of extra gene names (and other info), finding the intersection of the gene ids and the line returns the original queried gene id
 			intersection = list(set(line.split()).intersection(gene_ids_case_incensitive))
 			if intersection:
@@ -227,7 +228,7 @@ def map_protein_ids_to_pdb( id_list, database='pdbsws' ):
 	placeholder = '%s'
 	placeholders = ','.join([placeholder] * len(id_list))
 	query = "select pdbid, chain, uniprot from pdb2uniprot as p2u where uniprot in (%s)" % placeholders
-	print query
+	print(query)
     
 	cursor.execute(query, id_list)
     
@@ -248,7 +249,7 @@ def get_pdb_protein_ids( pdbid, database='pdbsws', reversible=False ):
 	db = MySQLdb.connect("localhost", 'kdrew', 'kdrew_utexas', database)
 	cursor = db.cursor()
 	query = "select pdbid, chain, uniprot from pdb2uniprot as p2u where pdbid = '%s'" % (pdbid,)
-	print query
+	print(query)
     
 	cursor.execute(query)
     
@@ -279,17 +280,17 @@ def map_protein_ids( id_list, from_id, to_id, reviewed=False ):
 		'query':query_str,
 	}
 
-	data = urllib.urlencode(params)
-	print data
-	request = urllib2.Request(url, data)
+	data = urllib.parse.urlencode(params)
+	print(data)
+	request = urllib.request.Request(url, data.encode('utf-8'))
 	contact = "kdrew@utexas.edu" 
 	request.add_header('User-Agent', 'Python %s' % contact)
-	response = urllib2.urlopen(request)
+	response = io.TextIOWrapper(urllib.request.urlopen(request), encoding='utf-8')
 
     #kdrew: put resulting map into dictionary of lists (one to many)
 	return_dict = {}
 	for line in response.readlines():
-		print line
+		print(line)
 		if line.split()[0] != "From":
 			try:
 				if len(line.split()) > 2:
@@ -305,7 +306,7 @@ def map_protein_ids( id_list, from_id, to_id, reviewed=False ):
 
 	for i in id_list:
 		if i not in return_dict.keys():
-			print "No id match for %s, adding empty list" % i
+			print("No id match for %s, adding empty list" % i)
 			return_dict[i] = []
 
 	if reviewed:

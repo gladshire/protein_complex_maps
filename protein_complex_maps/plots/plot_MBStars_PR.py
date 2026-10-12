@@ -23,63 +23,63 @@ import protein_complex_maps.pdb_util as pdbu
 
 def main():
 
-	parser = argparse.ArgumentParser(description="Plot precision recall of protein interactions for MB Stars graph estimation and correlation")
-	parser.add_argument("--pdb_list_filename", action="store", dest="pdb_list_filename", required=False, default=None,
-						help="File of benchmark pdbids")
-	parser.add_argument("--pdbid", action="store", dest="pdbid", required=False, default=None,
-						help="PDB id")
-	parser.add_argument("--base_species", action="store", dest="base_species", required=False, default="Hsapiens",
-						help="Species to evaluate, default=Hsapiens")
-	parser.add_argument("--plot_filename", action="store", dest="plot_filename", required=False, default=None,
-						help="Filename of output plot")
-	parser.add_argument("--pisa_dir", action="store", dest="pisa_dir", required=True, default=None,
-						help="Directory of pisa files for calculating surface area")
-	parser.add_argument("--nd_matrix", action="store", dest="nd_matrix", required=False, default=None,
-						help="Filename of nd matrix")
-	parser.add_argument("--mb_matrix", action="store", dest="mb_matrix", required=False, default=None,
-						help="Filename of mb matrix")
-	parser.add_argument("--corr_matrix", action="store", dest="corr_matrix", required=False, default=None,
-						help="Filename of corr matrix")
-	parser.add_argument("--matrix_ids", action="store", dest="matrix_ids", required=False, default=None,
-						help="Filename of ids in matrix")
-	parser.add_argument("--mb_matrix_ids", action="store", dest="mb_matrix_ids", required=False, default=None,
-						help="Filename of ids in mb matrix")
-	parser.add_argument("--biogrid_matrix", action="store", dest="biogrid_matrix", required=False, default=None,
-						help="Filename of biogrid matrix")
-	parser.add_argument("--biogrid_ids", action="store", dest="biogrid_ids", required=False, default=None,
-						help="Filename of ids in matrix from biogrid")
-	parser.add_argument("--replace_PDBID", action="store_true", dest="replace_PDBID", required=False, default=False,
-						help="Flag to replace PDBID in nd_matrix, corr_matrix and matrix_ids args with pdb ids in pdb_list_filename")
-	parser.add_argument("--mb_map_pickle", action="store_true", dest="mb_map_pickle", required=False, default=False,
-						help="Flag to load mb map from pickle file")
-	parser.add_argument("--mb_map_pickle_file", action="store", dest="mb_map_pickle_file", required=False, default="mb_map.p",
-						help="Filename of pickle map")
-	args = parser.parse_args()
+        parser = argparse.ArgumentParser(description="Plot precision recall of protein interactions for MB Stars graph estimation and correlation")
+        parser.add_argument("--pdb_list_filename", action="store", dest="pdb_list_filename", required=False, default=None,
+                                                help="File of benchmark pdbids")
+        parser.add_argument("--pdbid", action="store", dest="pdbid", required=False, default=None,
+                                                help="PDB id")
+        parser.add_argument("--base_species", action="store", dest="base_species", required=False, default="Hsapiens",
+                                                help="Species to evaluate, default=Hsapiens")
+        parser.add_argument("--plot_filename", action="store", dest="plot_filename", required=False, default=None,
+                                                help="Filename of output plot")
+        parser.add_argument("--pisa_dir", action="store", dest="pisa_dir", required=True, default=None,
+                                                help="Directory of pisa files for calculating surface area")
+        parser.add_argument("--nd_matrix", action="store", dest="nd_matrix", required=False, default=None,
+                                                help="Filename of nd matrix")
+        parser.add_argument("--mb_matrix", action="store", dest="mb_matrix", required=False, default=None,
+                                                help="Filename of mb matrix")
+        parser.add_argument("--corr_matrix", action="store", dest="corr_matrix", required=False, default=None,
+                                                help="Filename of corr matrix")
+        parser.add_argument("--matrix_ids", action="store", dest="matrix_ids", required=False, default=None,
+                                                help="Filename of ids in matrix")
+        parser.add_argument("--mb_matrix_ids", action="store", dest="mb_matrix_ids", required=False, default=None,
+                                                help="Filename of ids in mb matrix")
+        parser.add_argument("--biogrid_matrix", action="store", dest="biogrid_matrix", required=False, default=None,
+                                                help="Filename of biogrid matrix")
+        parser.add_argument("--biogrid_ids", action="store", dest="biogrid_ids", required=False, default=None,
+                                                help="Filename of ids in matrix from biogrid")
+        parser.add_argument("--replace_PDBID", action="store_true", dest="replace_PDBID", required=False, default=False,
+                                                help="Flag to replace PDBID in nd_matrix, corr_matrix and matrix_ids args with pdb ids in pdb_list_filename")
+        parser.add_argument("--mb_map_pickle", action="store_true", dest="mb_map_pickle", required=False, default=False,
+                                                help="Flag to load mb map from pickle file")
+        parser.add_argument("--mb_map_pickle_file", action="store", dest="mb_map_pickle_file", required=False, default="mb_map.p",
+                                                help="Filename of pickle map")
+        args = parser.parse_args()
 
 
-	pdb_list = []
-	if args.pdb_list_filename != None:
-		#kdrew: read in pdb list
-		pdb_list_file = open(args.pdb_list_filename,"rb")
-		for line in pdb_list_file.readlines():
-			pdb_list.append(line.strip())
-	elif args.pdbid != None:
-		pdb_list.append(args.pdbid)
-	else:
-		print "Use either --pdb_list_filename or --pdbid to specify PDB"
-		return
+        pdb_list = []
+        if args.pdb_list_filename != None:
+                #kdrew: read in pdb list
+                pdb_list_file = open(args.pdb_list_filename,"r")
+                for line in pdb_list_file.readlines():
+                        pdb_list.append(line.strip())
+        elif args.pdbid != None:
+                pdb_list.append(args.pdbid)
+        else:
+                print("Use either --pdb_list_filename or --pdbid to specify PDB")
+                return
 
 
-	interaction_list = []
-	mb_interaction_list = []
-	correlation_list = []
-	nd_list = []
+        interaction_list = []
+        mb_interaction_list = []
+        correlation_list = []
+        nd_list = []
         mb_list = []
         biogrid_list = []
 
         #kdrew: read in ids
         mb_matrix_ids_filename = args.mb_matrix_ids
-        mb_matrix_id_file = open(mb_matrix_ids_filename,"rb")
+        mb_matrix_id_file = open(mb_matrix_ids_filename,"r")
         mb_matrix_ensg_list = []
         for line in mb_matrix_id_file.readlines():
                 line_id = line.strip()
@@ -89,7 +89,7 @@ def main():
             mb_matrix_uniprot_map = pu.map_protein_ids(mb_matrix_ensg_list, "ENSEMBL_ID", "ACC")
             pickle.dump(mb_matrix_uniprot_map, open(args.mb_map_pickle_file,"wb"))
         else:
-            mb_matrix_uniprot_map = pickle.load(open(args.mb_map_pickle_file,"rb"))
+            mb_matrix_uniprot_map = pickle.load(open(args.mb_map_pickle_file,"rb"), encoding='latin1')
 
         #mb_matrix_uniprot_map = pu.map_protein_ids(mb_matrix_ensg_list, "ENSEMBL_ID", "ACC")
         #print mb_matrix_uniprot_map
@@ -103,8 +103,8 @@ def main():
                 mb_matrix_id_lists.append(None)
 
 
-	#kdrew: for every pdb
-	for pdbid in pdb_list:
+        #kdrew: for every pdb
+        for pdbid in pdb_list:
 
             chain2acc = pu.get_pdb_protein_ids(pdbid)
             acc2base_species = pu.get_ortholog( [x for x in chain2acc.values() if x != None], species1=args.base_species, reversible=True)
@@ -125,14 +125,14 @@ def main():
                 biogrid_matrix_filename = biogrid_matrix_filename.replace("PDBID",pdbid)
 
 
-            matrix_id_file = open(matrix_ids_filename,"rb")
+            matrix_id_file = open(matrix_ids_filename,"r")
             matrix_id_list = []
             for line in matrix_id_file.readlines():
                     matrix_id_list.append(line.strip())
             matrix_id_file.close()
 
             #kdrew: read in biogrid ids
-            biogrid_id_file = open(biogrid_ids_filename,"rb")
+            biogrid_id_file = open(biogrid_ids_filename,"r")
             biogrid_id_list = []
             for line in biogrid_id_file.readlines():
                     biogrid_id_list.append(line.strip())
@@ -140,7 +140,7 @@ def main():
 
             pdb_matrix_id_list = []
             for pid in matrix_id_list:
-                if acc2base_species.has_key(pid):
+                if pid in acc2base_species:
                     pdb_matrix_id_list.append(pid)
                 else:
                     continue
@@ -149,7 +149,7 @@ def main():
             for i, pid_list in enumerate(mb_matrix_id_lists):
                 notfound_flag = True
                 for pid in pid_list:
-                    if acc2base_species.has_key(pid) and notfound_flag:
+                    if pid in acc2base_species and notfound_flag:
                         pdb_mb_matrix_id_list.append(pid)
                         mb_matrix_id_dict[pid] = i
                         notfound_flag = False
@@ -183,46 +183,46 @@ def main():
                         mb_interaction_list.append(0)
                 mb_list.append( mb_mat[mb_matrix_id_dict[acc1], mb_matrix_id_dict[acc2]])
 
-	precision, recall, thresholds = precision_recall_curve(interaction_list, correlation_list)
-	area = auc(recall, precision)
-	print "PR Area Under Curve: %0.2f" % area
-	plt.plot(recall, precision, 'red')
+        precision, recall, thresholds = precision_recall_curve(interaction_list, correlation_list)
+        area = auc(recall, precision)
+        print("PR Area Under Curve: %0.2f" % area)
+        plt.plot(recall, precision, 'red')
 
-	precision, recall, thresholds = precision_recall_curve(interaction_list, nd_list)
-	area = auc(recall, precision)
-	print "PR Area Under Curve: %0.2f" % area
-	plt.plot(recall, precision, 'blue')
+        precision, recall, thresholds = precision_recall_curve(interaction_list, nd_list)
+        area = auc(recall, precision)
+        print("PR Area Under Curve: %0.2f" % area)
+        plt.plot(recall, precision, 'blue')
 
-        print mb_interaction_list
-        print mb_list
-	precision, recall, thresholds = precision_recall_curve(mb_interaction_list, mb_list)
-	area = auc(recall, precision)
-	print "PR Area Under Curve: %0.2f" % area
-	plt.plot(recall, precision, 'black')
+        print(mb_interaction_list)
+        print(mb_list)
+        precision, recall, thresholds = precision_recall_curve(mb_interaction_list, mb_list)
+        area = auc(recall, precision)
+        print("PR Area Under Curve: %0.2f" % area)
+        plt.plot(recall, precision, 'black')
 
-	precision, recall, thresholds = precision_recall_curve(interaction_list, biogrid_list)
-	area = auc(recall, precision)
-	print "PR Area Under Curve: %0.2f" % area
-	plt.plot(recall, precision, 'green')
+        precision, recall, thresholds = precision_recall_curve(interaction_list, biogrid_list)
+        area = auc(recall, precision)
+        print("PR Area Under Curve: %0.2f" % area)
+        plt.plot(recall, precision, 'green')
 
 	
 
-	plt.title('Precision-Recall: AUC=%0.2f' % (area,))
-	plt.xlabel('Recall')
-	plt.ylabel('Precision')
-	plt.ylim([0.0, 1.05])
-	plt.xlim([0.0, 1.0])
-	#plt.xlim([0.0, 0.2])
-	plt.legend(loc="lower left")
+        plt.title('Precision-Recall: AUC=%0.2f' % (area,))
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.ylim([0.0, 1.05])
+        plt.xlim([0.0, 1.0])
+        #plt.xlim([0.0, 0.2])
+        plt.legend(loc="lower left")
 
-	plt.savefig(args.plot_filename)
-	plt.close('all')
+        plt.savefig(args.plot_filename)
+        plt.close('all')
 
 
 
 
 if __name__ == "__main__":
-	main()
+        main()
 
 
 

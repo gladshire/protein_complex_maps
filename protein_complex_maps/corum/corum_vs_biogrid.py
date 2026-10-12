@@ -33,7 +33,7 @@ def main():
 
 	if args.complex_filename: 
 		#kdrew: read in complexes from corum
-		with open(args.complex_filename, 'rb') as csvfile:
+		with open(args.complex_filename, 'r') as csvfile:
 			complexes = csv.reader(csvfile, delimiter=';')
 			for row in complexes:
 				if row[3] == "Human" and row[4] != '':
@@ -58,12 +58,12 @@ def main():
 				continue
 
 			D = pic.create_interaction_matrix( complexes_dict[complex1], biogrid_map, experimental_system = ['Co-crystal Structure','Reconstituted Complex'] )
-			print "complex: %s proteins: %s interactions: %s" % ( complex1, len(complexes_dict[complex1]), D.sum() )
+			print("complex: %s proteins: %s interactions: %s" % ( complex1, len(complexes_dict[complex1]), D.sum() ))
 
 		#kdrew: if there is a problem continue to next complex
 		except:
 			e = sys.exc_info()[0]
-			print "complex: %s error: %s" % (complex1,e)
+			print("complex: %s error: %s" % (complex1,e))
 			continue
 
 

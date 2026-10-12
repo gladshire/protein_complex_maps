@@ -49,7 +49,7 @@ def main():
 
     args = parser.parse_args()
 
-    msds = pickle.load( open( args.msds_filename, "rb" ) )
+    msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 
     if args.proteins != None:
             data_set, new_id_map = msds.get_subdata_matrix(args.proteins, ignoreNonExistingIds=args.ignore_missing) 
@@ -59,13 +59,13 @@ def main():
 
 
     if args.genenames:
-            print "new_id_map.values: %s" % (new_id_map.values(),)
-            genename_map = pu.get_genenames_uniprot( new_id_map.values() )
-            print new_id_map
-            print genename_map
+            print("new_id_map.values: %s" % (list(new_id_map.values()),))
+            genename_map = pu.get_genenames_uniprot( list(new_id_map.values()) )
+            print(new_id_map)
+            print(genename_map)
             gene_id_map = dict()
-            for i in xrange(len(data_set)):
-                    print i
+            for i in range(len(data_set)):
+                    print(i)
                     #print genename_map[new_id_map[i]]
                     #kdrew: sometimes no genename is returned for certain ids, default to original id
                     try:
@@ -87,7 +87,7 @@ def main():
 
     V = data_set 
 
-    print V
+    print(V)
 
     # Run LSNMF algorithm
     # Returned object is fitted factorization model. Through it user can access quality and performance measures.
@@ -100,25 +100,25 @@ def main():
 
     # Basis matrix.
     W = fctr_res.basis()
-    print "Basis matrix"
-    print W
+    print("Basis matrix")
+    print(W)
 
     # Mixture matrix. 
     H = fctr_res.coef()
-    print "Coef"
+    print("Coef")
     #print H
 
     # Print the loss function according to Kullback-Leibler divergence. By default Euclidean metric is used.
-    print "Distance Kullback-Leibler: %5.3e" % fctr_res.distance(metric = "kl")
+    print("Distance Kullback-Leibler: %5.3e" % fctr_res.distance(metric = "kl"))
 
     # Compute generic set of measures to evaluate the quality of the factorization
     sm = fctr_res.summary()
     # Print residual sum of squares (Hutchins, 2008). Can be used for estimating optimal factorization rank.
-    print "Rss: %8.3f" % sm['rss']
+    print("Rss: %8.3f" % sm['rss'])
     # Print explained variance.
-    print "Evar: %8.3f" % sm['evar']
+    print("Evar: %8.3f" % sm['evar'])
     # Print actual number of iterations performed
-    print "Iterations: %d" % sm['n_iter']
+    print("Iterations: %d" % sm['n_iter'])
 
     # Print estimate of target matrix V 
     #print "Estimate"
@@ -132,38 +132,38 @@ def main():
 
 
     bicluster1 = bc.Bicluster(rows=[0,1,2,3,4,5,14], cols=[55,56], random_module=random)
-    print "lid zscore: %s" % (rsscore_obj.zscore_all(bicluster1.get_submatrix(data_set)),)
-    print "lid cols zscore: %s" % (rsscore_obj.zscore_columns(data_set, bicluster1))
-    print "lid rows zscore: %s" % (rsscore_obj.zscore_rows(data_set, bicluster1))
+    print("lid zscore: %s" % (rsscore_obj.zscore_all(bicluster1.get_submatrix(data_set)),))
+    print("lid cols zscore: %s" % (rsscore_obj.zscore_columns(data_set, bicluster1)))
+    print("lid rows zscore: %s" % (rsscore_obj.zscore_rows(data_set, bicluster1)))
 
-    print "Clusters"
+    print("Clusters")
     for i in range(args.rank):
         Wtransvec = np.transpose(W)[i]
-        print "W",i, Wtransvec
+        print("W",i, Wtransvec)
         rows = np.ravel(np.where(Wtransvec > args.threshold)[1])
         Hvec = H[i]
-        print "H",i, Hvec
+        print("H",i, Hvec)
         cols = np.ravel(np.where(Hvec > args.threshold)[1])
-        print rows
-        print cols
+        print(rows)
+        print(cols)
         bicluster1 = bc.Bicluster(rows=rows, cols=cols, random_module=random)
         pbc.plot_bicluster( data_set, bicluster1, savefilename="/home/kdrew/public_html/test/bicluster_test%s.pdf" % (i,), ylim_max=True)
 
         #kdrew: monte carlo optimize using nnmf cluster as seed
         bicluster_mc = bcgen.generator(data_set, bicluster1)
-	eval_dict = bcgen.evaluate( data_set, len(bcgen.biclusters)-1 )
+        eval_dict = bcgen.evaluate( data_set, len(bcgen.biclusters)-1 )
 
         try:
-            print "zscore: %s" % (rsscore_obj.zscore_all(bicluster1.get_submatrix(data_set)),)
-            print "cols zscore: %s" % (rsscore_obj.zscore_columns(data_set, bicluster1))
-            print "rows zscore: %s" % (rsscore_obj.zscore_rows(data_set, bicluster1))
+            print("zscore: %s" % (rsscore_obj.zscore_all(bicluster1.get_submatrix(data_set)),))
+            print("cols zscore: %s" % (rsscore_obj.zscore_columns(data_set, bicluster1)))
+            print("rows zscore: %s" % (rsscore_obj.zscore_rows(data_set, bicluster1)))
         except:
             continue
 
-	for t in eval_dict.keys():
+        for t in eval_dict.keys():
             logging.info("random %s, mean: %s, std: %s, zscore: %s" % ( t, eval_dict[t]['mean'], eval_dict[t]['std'], eval_dict[t]['zscore'] ))
 
-	pbc.plot_bicluster(data_set, bicluster_mc, savefilename="/home/kdrew/public_html/test/bicluster_testMC%s.pdf" % (i), ylim_max=True)
+        pbc.plot_bicluster(data_set, bicluster_mc, savefilename="/home/kdrew/public_html/test/bicluster_testMC%s.pdf" % (i), ylim_max=True)
 
     data_subplots = []
     f, data_subplots = plt.subplots(len(W),1,sharex='col')
@@ -182,5 +182,5 @@ def main():
 
 
 if __name__ == "__main__":
-	main()
+        main()
 

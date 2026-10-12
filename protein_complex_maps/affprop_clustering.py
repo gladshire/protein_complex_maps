@@ -76,7 +76,7 @@ def main():
 
 	args = parser.parse_args()
 
-	msds = pickle.load( open( args.msds_filename, "rb" ) )
+	msds = pickle.load( open( args.msds_filename, "rb" ), encoding='latin1' )
 
 	if args.proteins != None:
 		data_set, new_id_map = msds.get_subdata_matrix(args.proteins, ignoreNonExistingIds=args.ignore_missing) 
@@ -91,21 +91,21 @@ def main():
 			data_set, new_id_map = msds.get_subdata_matrix(args.proteins, ignoreNonExistingIds=args.ignore_missing) 
 
 
-		except MySQLdb.Error, e:
-			print e
+		except MySQLdb.Error as e:
+			print(e)
 
 	else:
 		data_set = msds.get_data_matrix()
 		new_id_map = msds.get_name2index()
 
 	if args.genenames:
-		genename_map = pu.get_genenames_uniprot( new_id_map.values() )
-		print new_id_map
-		print genename_map
+		genename_map = pu.get_genenames_uniprot( list(new_id_map.values()) )
+		print(new_id_map)
+		print(genename_map)
 		gene_id_map = dict()
-		for i in xrange(len(data_set)):
-			print i
-			print genename_map[new_id_map[i]]
+		for i in range(len(data_set)):
+			print(i)
+			print(genename_map[new_id_map[i]])
 			#kdrew: sometimes no genename is returned for certain ids, default to original id
 			if genename_map[new_id_map[i]] == None:
 				gene_id_map[i] = new_id_map[i]
@@ -127,9 +127,9 @@ def main():
 
 	for i in range(labels.max() + 1):
 		indices = np.where(labels == i)[0]
-		print "Cluster %i: %s" % ((i+1), ','.join([ new_id_map[j] for j in indices]))
+		print("Cluster %i: %s" % ((i+1), ','.join([ new_id_map[j] for j in indices])))
 
-	print labels
+	print(labels)
 	
 
 #kdrew: both average_cnt and sample_module need to be set for average correlation with sample noise to be computed
@@ -139,9 +139,9 @@ def runCluster(data_set, id_map, threshold=0.1):
 	data_set = np.nan_to_num(data_set)
 
 	corrcoefMat = np.nan_to_num(np.corrcoef(data_set))
-	for i in xrange(corrcoefMat.shape[0]):
-		for j in xrange(corrcoefMat.shape[1]):
-			print "%s\t%s\t%s" % (id_map[i], id_map[j], corrcoefMat[i,j],)
+	for i in range(corrcoefMat.shape[0]):
+		for j in range(corrcoefMat.shape[1]):
+			print("%s\t%s\t%s" % (id_map[i], id_map[j], corrcoefMat[i,j],))
 
 	#low_indices = corrcoefMat < threshold
 	#corrcoefMat[low_indices] = 0.0

@@ -19,15 +19,15 @@ def add_missing_residues(pdb_filename, chain_id, no_hetero_atoms = True):
 	try:    
 		structure = Bio.PDB.PDBParser().get_structure(pdbid, pdb_filename)
 	except IOError as e:
-		print "I/O error({0}): {1}".format(e.errno, e.strerror)
+		print("I/O error({0}): {1}".format(e.errno, e.strerror))
 		return
 	try:
 		chain_one = structure[0][chain_id]
 	except KeyError:
-		print "missing chain: %s" % (chain_id,)
+		print("missing chain: %s" % (chain_id,))
 		return 
 
-	f = open(pdb_filename, "rb")
+	f = open(pdb_filename, "r")
 	chain_seqrecord = None
 	#kdrew: get sequence of chain's atom record with gaps filled
 	for i in pdbio.PdbAtomIterator(f):
@@ -56,12 +56,12 @@ def add_missing_residues(pdb_filename, chain_id, no_hetero_atoms = True):
 					complete_chain.append(r1)
 					curr_resseq = r1.get_id()[1]
 				else:
-					print "WARNING: PDB gap filled sequence does not match pdb atom record: %s  %s" % (aa, su.seq1(r1.resname))
+					print("WARNING: PDB gap filled sequence does not match pdb atom record: %s  %s" % (aa, su.seq1(r1.resname)))
 			except IndexError:
-				print "WARNING: Extra residues in gap filled sequence but not in pdb atom record: %s" % (aa,)
+				print("WARNING: Extra residues in gap filled sequence but not in pdb atom record: %s" % (aa,))
 
 	if len(tmp_chain) > 0:
-		print "WARNING: Extra residues in pdb atom record but not in gap filled sequence: %s" % (tmp_chain,)
+		print("WARNING: Extra residues in pdb atom record but not in gap filled sequence: %s" % (tmp_chain,))
 
 	return complete_chain
 
@@ -109,26 +109,26 @@ def calc_dist_matrix_complete(chain_one, chain_two, no_hetero_atoms= True):
 
 	#kdrew: not sure if the direction (topleft, botleft, etc) makes sense with how the hstack and vstack  are used
 	pdb_dist_mat_topleft = calc_dist_matrix(chain_one, chain_one)
-	print "topleft shape: %s" % (pdb_dist_mat_topleft.shape,)
+	print("topleft shape: %s" % (pdb_dist_mat_topleft.shape,))
 
 	pdb_dist_mat_botleft = calc_dist_matrix(chain_one, chain_two)
-	print "botleft shape: %s" % (pdb_dist_mat_botleft.shape,)
+	print("botleft shape: %s" % (pdb_dist_mat_botleft.shape,))
 
 	pdb_dist_mat_topright = calc_dist_matrix(chain_two, chain_one)
-	print "topright shape: %s" % (pdb_dist_mat_topright.shape,)
+	print("topright shape: %s" % (pdb_dist_mat_topright.shape,))
 
 	pdb_dist_mat_botright = calc_dist_matrix(chain_two, chain_two)
-	print "botright shape: %s" % (pdb_dist_mat_botright.shape,)
+	print("botright shape: %s" % (pdb_dist_mat_botright.shape,))
 
 
 	pdb_dist_mat_left = np.hstack((pdb_dist_mat_topleft, pdb_dist_mat_botleft))
-	print "left shape: %s" % (pdb_dist_mat_left.shape,)
+	print("left shape: %s" % (pdb_dist_mat_left.shape,))
 
 	pdb_dist_mat_right = np.hstack((pdb_dist_mat_topright, pdb_dist_mat_botright))
-	print "right shape: %s" % (pdb_dist_mat_right.shape,)
+	print("right shape: %s" % (pdb_dist_mat_right.shape,))
 
 	pdb_dist_mat = np.vstack((pdb_dist_mat_left, pdb_dist_mat_right))
-	print "pdb_dist_mat shape: %s" % (pdb_dist_mat.shape,)
+	print("pdb_dist_mat shape: %s" % (pdb_dist_mat.shape,))
 
 	return pdb_dist_mat
 
@@ -149,20 +149,20 @@ def metric_dist(structure, chain1, chain2, structure2=None, function=np.nanmin):
 	try:
 		chain_one = structure[0][chain1]
 	except KeyError:
-		print "missing chain: %s" % (chain1,)
+		print("missing chain: %s" % (chain1,))
 		return np.nan
 
 	if structure2 == None:
 		try:
 			chain_two = structure[0][chain2]
 		except KeyError:
-			print "missing chain: %s" % (chain2,)
+			print("missing chain: %s" % (chain2,))
 			return np.nan
 	else:
 		try:
 			chain_two = structure2[0][chain2]
 		except KeyError:
-			print "missing chain: %s" % (chain2,)
+			print("missing chain: %s" % (chain2,))
 			return np.nan
 
 	dmat = calc_dist_matrix(chain_one, chain_two)
@@ -177,7 +177,7 @@ class PISA_Interfaces(object):
 		self.pdbid = pdbid
 
 		#kdrew: get interface area (angstrom^2) from pisa file for every interacting chain
-		pisa_file = open(pisa_filename, "rb")
+		pisa_file = open(pisa_filename, "r")
 		for line in pisa_file.readlines():
 			line_split = line.split()
 			chainA = line_split[0]
@@ -189,17 +189,17 @@ class PISA_Interfaces(object):
 
 		if self.pdbid != None:
 			self.chain2acc = pu.get_pdb_protein_ids(self.pdbid, reversible=True)
-			print self.chain2acc
+			print(self.chain2acc)
 
 		self.acc2base_species = dict()
 
 	def map_orthologs(self, base_species):
 
 		if self.pdbid == None:
-			raise Exception, "Cannot map accs because did not initialize PISA_Interfaces with pdbid"
+			raise Exception("Cannot map accs because did not initialize PISA_Interfaces with pdbid")
 
 		self.acc2base_species[base_species] = pu.get_ortholog( [x for x in self.chain2acc.values() if x != None], species1=base_species, reversible=True)
-		print self.acc2base_species
+		print(self.acc2base_species)
 
 	def surface_area(self, chainA, chainB):
 		if chainA > chainB:
@@ -214,31 +214,31 @@ class PISA_Interfaces(object):
 
 	def surface_area_by_acc(self, acc1, acc2, base_species=None):
 
-            print "acc1: %s acc2: %s" % (acc1, acc2)
-            print "base_species: %s" % base_species
+            print("acc1: %s acc2: %s" % (acc1, acc2))
+            print("base_species: %s" % base_species)
 
             #kdrew: if base_species is not already mapped, map it
             if base_species not in self.acc2base_species.keys() and base_species != None:
                 self.map_orthologs(base_species)
 
-                print self.acc2base_species[base_species][acc1]
-                print self.acc2base_species[base_species][acc2]
+                print(self.acc2base_species[base_species][acc1])
+                print(self.acc2base_species[base_species][acc2])
 
             #kdrew: if base_species is specified then use ortholog mapping
             if base_species != None:
                 try:
                     c1 = self.chain2acc[self.acc2base_species[base_species][acc1]]
                     c2 = self.chain2acc[self.acc2base_species[base_species][acc2]]
-                    print c1, c2
-                except KeyError, e:
-                    print "Cannot find %s in chain2acc" % (e,)
+                    print(c1, c2)
+                except KeyError as e:
+                    print("Cannot find %s in chain2acc" % (e,))
                     return None
             #kdrew: if base species is not specified, input accs are the same as specified in the pdb
             else:
                 c1 = self.chain2acc[acc1]
                 c2 = self.chain2acc[acc2]
 
-            print c1, c2
+            print(c1, c2)
 
             return self.surface_area(c1,c2)
 

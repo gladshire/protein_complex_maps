@@ -44,7 +44,7 @@ def read_peptide_list(peptide_list_file):
 			count_dict = peptide_count_dict[peptide]
 			try:
 				count_dict[fraction] = count_dict[fraction] + count
-				print "duplicate peptide %s %s %s" % (fraction, peptide, count)
+				print("duplicate peptide %s %s %s" % (fraction, peptide, count))
 			except KeyError:
 				count_dict[fraction] = count
 
@@ -107,7 +107,7 @@ def read_peptide_counts(peptide_file):
 	for line in peptide_file.readlines():
 		key = line.split()[1] 
 		count = int(line.split()[0])
-		print key, count
+		print(key, count)
 		peptide_dict[key] = count
 
 	return peptide_dict

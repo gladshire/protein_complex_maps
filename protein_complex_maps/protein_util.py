@@ -8,7 +8,7 @@ import Bio.Seq as Seq
 import Bio.SeqRecord as SeqRecord
 import Bio.Alphabet as ba
 
-ACC_QUERY_LENGTH = 250
+ACC_QUERY_LENGTH = 100
 FUZZY_MATCH_THRESHOLD = 0.25
 
 ##kdrew: queries uniprot for protein sequence length
@@ -157,26 +157,27 @@ def get_from_uniprot( protein_ids, keyword ):
 	for prot in protein_ids:
 		cleaned_protein_ids.append(prot.split('-')[0])
 
-	protein_ids = protein_ids + cleaned_protein_ids
-
+        FIELD_MAP = {"length": "length", "organism": "organism_name", "genes(PREFERRED)": "gene_primary", "gene": "gene_primary", "id": "id"}
+	#protein_ids = protein_ids + cleaned_protein_ids
+        field = FIELD_MAP.get(keyword, keyword)
 	#kdrew: break up query into chunks so as not to get 414 error
 	for i in xrange( (len(protein_ids)/ACC_QUERY_LENGTH)+1 ):
 		start_splice = i*ACC_QUERY_LENGTH
 		stop_splice = (i+1)*ACC_QUERY_LENGTH
-		report_query = "http://www.uniprot.org/uniprot/?format=tab&query=accession:(%s)&columns=id,%s" % ("+or+".join(protein_ids[start_splice:stop_splice]), keyword)
-		#print report_query
+                chunk = protein_ids[i:i + ACC_QUERY_LENGTH]
+                query = "+OR+".join("accession:%s" %a for a in chunk)
+		report_query = "http://rest.uniprot.org/uniprotkb/stream?format=tsv&fields=accession,%s&query=%s" % (field, query)
+		print report_query
 		f = urllib2.urlopen(report_query)
 		for line in f.readlines():
-			if line.split()[0] in protein_ids:
-				if keyword == "length":
-					return_dict[line.split()[0]] = int(line.split()[1])
-				elif keyword == "organism":
-					return_dict[line.split()[0]] = line.split('\t')[1]
-				else:
-					try:
-						return_dict[line.split()[0]] = line.split()[1]
-					except IndexError:
-						return_dict[line.split()[0]] = None
+                        cols = line.rstrip("\n").split("\t")
+                        acc = cols[0]
+                        if acc not in protein_ids:
+                                continue
+                        val = cols[1] if len(cols) > 1 and cols[1] else None
+                        if keyword == "length" and val is not None:
+                                val = int(val)
+                        return_dict[acc] = val
 
 
 	return return_dict
